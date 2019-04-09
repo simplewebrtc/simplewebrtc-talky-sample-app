@@ -2,7 +2,7 @@
 
 Thanks for your interest in this project. 
 
-We're not accepting pull requests because this is a public fork of a privately managed product, [Talky](https://talky.io).
+We're not accepting pull requests because this is a public fork of a privately managed product, [Talky](https://talky.io), used as a sample app for [SimpleWebRTC](https://simplewebrtc.com).
 
 However...
 
