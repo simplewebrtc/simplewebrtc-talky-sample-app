@@ -13,7 +13,7 @@ interface ContainerProps {
   isTyping: boolean;
 }
 
-const Container = styled.button((props: ContainerProps) => ({
+const Container = styled.button<ContainerProps>(props => ({
   position: 'absolute',
   bottom: 0,
   right: 0,
