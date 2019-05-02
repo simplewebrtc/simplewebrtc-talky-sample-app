@@ -19,7 +19,7 @@ import './index.css';
 // Set this to the API key you received with your SimpleWebRTC account.
 // You can visit accounts.simplewebrtc.com to find your API key.
 // ====================================================================
-const API_KEY: string = 'YOUR_API_KEY';
+const API_KEY: string = '';
 
 
 const CONFIG_URL = `https://api.simplewebrtc.com/config/guest/${API_KEY}`;
@@ -38,7 +38,7 @@ const store = createStore(
 (window as any).actions = Actions;
 (window as any).selectors = Selectors;
 
-if (API_KEY === 'YOUR_API_KEY') {
+if (!API_KEY) {
   ReactDOM.render(
     <div>
       <p>Edit src/index.tsx to set your API key.</p>
