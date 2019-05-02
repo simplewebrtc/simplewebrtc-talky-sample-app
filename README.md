@@ -12,4 +12,5 @@ You can retrieve your API key by visiting [https://accounts.simplewebrtc.com](ht
 2. Edit `src/index.tsx` as described above.
 3. `npm start`
 4. Go to [https://localhost:3000/](https://localhost:3000)
+5. The sample uses a self-signed cert that you will need to accept.
 
