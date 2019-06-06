@@ -21,7 +21,17 @@ import './index.css';
 // ====================================================================
 const API_KEY: string = '';
 
-
+// ====================================================================
+// !! IMPORTANT SETUP !!
+// ====================================================================
+// If you are using custom user data, the config URL needs to be
+// switched to the /user/ endpoint, like so:
+//
+// const CONFIG_URL = `https://api.simplewebrtc.com/config/user/${API_KEY}`;
+//
+// You can find more info about custom user data at:
+// https://docs.simplewebrtc.com/#/User_Data
+// ====================================================================
 const CONFIG_URL = `https://api.simplewebrtc.com/config/guest/${API_KEY}`;
 
 const compose =
