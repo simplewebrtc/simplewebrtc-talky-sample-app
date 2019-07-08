@@ -1,36 +1,44 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { TalkyButton } from '../styles/button';
+import { colorToString } from '../utils/colorify';
 
-const Container = styled.div({
-  textAlign: 'center',
-  '& h2': {
-    fontSize: '36px',
-    fontWeight: 300
-  },
-  '& input': {
-    display: 'block',
-    padding: '7px',
-    width: '100%',
-    maxWidth: '450px',
-    margin: '0 auto',
-    borderRadius: '3px',
-    border: '1px solid #e6eaed',
-    marginBottom: '10px'
-  },
-  '& button': {
-    paddingLeft: '8px',
-    paddingRight: '8px'
+const Container = styled.div`
+  text-align: center;
+  h2 {
+    font-size: 36px;
+    font-weight: 300;
+    color: ${({ theme }) => colorToString(theme.foreground)};
   }
-});
+  input {
+    display: block;
+    padding: 7px;
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    border-radius: 3px;
+    border: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
+    margin-bottom: 10px;
+  }
+  button {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+`;
 
-const SubmitButton = styled(TalkyButton)({
-  color: 'white',
-  backgroundColor: '#44bb70',
-  ':hover': {
-    backgroundColor: '#369658'
+const SubmitButton = styled(TalkyButton)`
+  color: ${({ theme }) => colorToString(theme.buttonActionText)};
+  background-color: ${({ theme }) =>
+    colorToString(theme.buttonActionBackground)};
+  :hover {
+    background-color: ${({ theme }) =>
+      colorToString(theme.buttonActionBackgroundHover)};
   }
-});
+  :active {
+    background-color: ${({ theme }) =>
+      colorToString(theme.buttonActionBackgroundActive)};
+  }
+`;
 
 const CancelButton = styled(TalkyButton)({
   marginRight: '10px'

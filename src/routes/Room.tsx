@@ -10,7 +10,6 @@ import {
 } from '@andyet/simplewebrtc';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
 import styled from 'styled-components';
 import ChatContainer from '../components/ChatContainer';
 import ChatToggle from '../components/ChatToggle';
@@ -18,6 +17,9 @@ import Haircheck from '../components/Haircheck';
 import PasswordEntry from '../components/PasswordEntry';
 import PeerGrid from '../components/PeerGrid';
 import Sidebar from '../components/Sidebar';
+import SimpleWebRTCBanner from '../components/SimpleWebRTCBanner';
+import SoundPlayer from '../components/SoundPlayer';
+import HiddenPeers from '../contexts/HiddenPeers';
 import mq from '../styles/media-queries';
 
 const PasswordEntryContainer = styled.div({
@@ -28,11 +30,17 @@ const PasswordEntryContainer = styled.div({
   height: '100vh'
 });
 
+const RootContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: '100vh'
+});
+
 const Container = styled.div({
+  flex: 1,
   display: 'flex',
   position: 'relative',
   flexDirection: 'column',
-  minHeight: '100vh',
   [mq.SMALL_DESKTOP]: {
     flexDirection: 'row'
   }
@@ -46,12 +54,10 @@ const LoadingState = styled.div({
   alignItems: 'center'
 });
 
-interface MatchParams {
-  roomName: string;
-}
-
-interface Props extends RouteComponentProps<MatchParams> {
+interface Props {
   configUrl: string;
+  userData?: string;
+  name: string;
   mute?: () => void;
   unmute?: () => void;
 }
@@ -62,6 +68,7 @@ interface State {
   sendRtt: boolean;
   password?: string;
   chatOpen: boolean;
+  hiddenPeers: string[];
 }
 
 class Index extends Component<Props, State> {
@@ -72,14 +79,14 @@ class Index extends Component<Props, State> {
       password: undefined,
       pttMode: false,
       sendRtt: false,
-      chatOpen: false
+      chatOpen: false,
+      hiddenPeers: []
     };
   }
 
   public render() {
-    const roomName = this.props.match.params.roomName;
     return (
-      <Provider configUrl={this.props.configUrl}>
+      <Provider configUrl={this.props.configUrl} userData={this.props.userData}>
         <LocalMediaList
           render={({ media }) => (
             <>
@@ -101,7 +108,7 @@ class Index extends Component<Props, State> {
                   </Disconnected>
 
                   <Connected configUrl="">
-                    <Room password={this.state.password} name={roomName}>
+                    <Room password={this.state.password} name={this.props.name}>
                       {({ room }) => {
                         if (!room.joined) {
                           if (room.passwordRequired) {
@@ -124,37 +131,52 @@ class Index extends Component<Props, State> {
                         }
 
                         return (
-                          <Container>
-                            <Sidebar
-                              roomAddress={room.address!}
-                              activeSpeakerView={this.state.activeSpeakerView}
-                              toggleActiveSpeakerView={
-                                this.toggleActiveSpeakerView
-                              }
-                              pttMode={this.state.pttMode}
-                              togglePttMode={this.togglePttMode}
-                              setPassword={this.setPassword}
-                              passwordRequired={room.passwordRequired}
-                              roomId={room.id!}
-                            />
-                            <PeerGrid
-                              roomAddress={room.address!}
-                              activeSpeakerView={this.state.activeSpeakerView}
-                            />
-                            {this.state.chatOpen ? (
-                              <ChatContainer
-                                roomAddress={room.address!}
-                                sendRtt={this.state.sendRtt}
-                                toggleRtt={this.toggleRtt}
-                                toggleChat={this.toggleChat}
-                              />
-                            ) : (
-                              <ChatToggle
-                                roomAddress={room.address!}
-                                onClick={this.toggleChat}
-                              />
-                            )}
-                          </Container>
+                          <HiddenPeers.Provider
+                            value={{
+                              hiddenPeers: this.state.hiddenPeers,
+                              togglePeer: this.togglePeer
+                            }}
+                          >
+                            <RootContainer>
+                              <SimpleWebRTCBanner />
+                              <Container>
+                                <SoundPlayer roomAddress={room.address!} />
+                                <Sidebar
+                                  roomAddress={room.address!}
+                                  activeSpeakerView={
+                                    this.state.activeSpeakerView
+                                  }
+                                  toggleActiveSpeakerView={
+                                    this.toggleActiveSpeakerView
+                                  }
+                                  pttMode={this.state.pttMode}
+                                  togglePttMode={this.togglePttMode}
+                                  setPassword={this.setPassword}
+                                  passwordRequired={room.passwordRequired}
+                                  roomId={room.id!}
+                                />
+                                <PeerGrid
+                                  roomAddress={room.address!}
+                                  activeSpeakerView={
+                                    this.state.activeSpeakerView
+                                  }
+                                />
+                                {this.state.chatOpen ? (
+                                  <ChatContainer
+                                    roomAddress={room.address!}
+                                    sendRtt={this.state.sendRtt}
+                                    toggleRtt={this.toggleRtt}
+                                    toggleChat={this.toggleChat}
+                                  />
+                                ) : (
+                                  <ChatToggle
+                                    roomAddress={room.address!}
+                                    onClick={this.toggleChat}
+                                  />
+                                )}
+                              </Container>
+                            </RootContainer>
+                          </HiddenPeers.Provider>
                         );
                       }}
                     </Room>
@@ -181,10 +203,12 @@ class Index extends Component<Props, State> {
       if (this.state.pttMode) {
         document.addEventListener('keydown', this.unmute);
         document.addEventListener('keyup', this.mute);
+        window.addEventListener('blur', this.props.mute!);
         this.props.mute!();
       } else {
         document.removeEventListener('keydown', this.unmute);
         document.removeEventListener('keyup', this.mute);
+        window.removeEventListener('blur', this.props.mute!);
         this.props.unmute!();
       }
     });
@@ -212,6 +236,17 @@ class Index extends Component<Props, State> {
 
   private toggleChat = () => {
     this.setState({ chatOpen: !this.state.chatOpen });
+  };
+
+  private togglePeer = (peerId: string) => {
+    if (this.state.hiddenPeers.includes(peerId)) {
+      const hiddenPeers = [...this.state.hiddenPeers];
+      const index = hiddenPeers.indexOf(peerId);
+      hiddenPeers.splice(index);
+      this.setState({ hiddenPeers });
+    } else {
+      this.setState({ hiddenPeers: [...this.state.hiddenPeers, peerId] });
+    }
   };
 }
 

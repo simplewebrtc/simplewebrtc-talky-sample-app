@@ -35,6 +35,7 @@ const VolumeMeter: React.SFC<Props> = ({ buckets, volume, speaking }) => {
     <Container buckets={buckets}>
       {Array.from(Array(buckets)).map((_, i) => (
         <Bucket
+          key={i}
           filled={volume >= (buckets - i) * bucketSize}
           speaking={speaking}
         />

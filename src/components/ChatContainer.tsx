@@ -8,22 +8,28 @@ import {
 } from '@andyet/simplewebrtc';
 import KeyboardArrowDownIcon from 'material-icons-svg/components/baseline/KeyboardArrowDown';
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import mq from '../styles/media-queries';
+import { colorToString } from '../utils/colorify';
+import emojify from '../utils/emojify';
+import Linkify from './Linkify';
 
-const Container = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: '50vh',
-  borderTop: '1px #e9ecec solid',
-  zIndex: 300,
-  backgroundColor: 'white',
-  [mq.SMALL_DESKTOP]: {
-    width: '200px',
-    borderTop: 'none',
-    borderLeft: '1px #e9ecec solid'
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 50vh;
+  max-height: 100vh;
+  border-top: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
+  z-index: 300;
+  background-color: ${({ theme }) => colorToString(theme.background)};
+  overflow: hidden;
+  ${mq.SMALL_DESKTOP} {
+    width: 200px;
+    border-top: none;
+    border-left: ${({ theme }) =>
+      css`1px solid ${colorToString(theme.border)}`};
   }
-});
+`;
 
 // const staydownContainerClass = css`
 //   flex: 1;
@@ -32,22 +38,26 @@ const Container = styled.div({
 //   margin-bottom: 16px;
 // `;
 
-const Header = styled.button({
-  border: '1px #e9ecec solid',
-  display: 'block',
-  padding: '10px',
-  fontSize: '18px',
-  outline: 'none',
-  backgroundColor: 'white',
-  '&:active': {
-    borderStyle: 'solid'
-  },
-  '& svg': {
-    verticalAlign: 'middle',
-    fontSize: '20px',
-    marginRight: '5px'
+const Header = styled.button`
+  border: none;
+  border-top: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
+  border-bottom: ${({ theme }) =>
+    css`1px solid ${colorToString(theme.border)}`};
+  display: block;
+  padding: 10px;
+  font-size: 18px;
+  outline: none;
+  background-color: ${({ theme }) => colorToString(theme.background)};
+  :active {
+    border-style: solid;
   }
-});
+  svg {
+    fill: ${({ theme }) => colorToString(theme.foreground)};
+    vertical-align: middle;
+    font-size: 20px;
+    margin-right: 5px;
+  }
+`;
 
 const StyledStayDownContainer = styled(StayDownContainer)({
   flex: 1,
@@ -56,50 +66,51 @@ const StyledStayDownContainer = styled(StayDownContainer)({
   marginBottom: '16px'
 });
 
-const InputContainer = styled.div({
-  '& textarea': {
-    width: '100%',
-    height: '90px',
-    minHeight: 0,
-    padding: '8px',
-    margin: 0,
-    outline: 'none',
-    border: 'none',
-    borderTop: '1px #e9ecec solid',
-    display: 'block',
-    fontSize: '14px',
-    fontFamily: 'inherit',
-    resize: 'none'
-  },
-  '& input': {
-    marginRight: '5px'
-  },
-  '& label': {
-    fontSize: '12px'
+const InputContainer = styled.div`
+  textarea {
+    width: 100%;
+    height: 90px;
+    min-height: 0;
+    padding: 8px;
+    margin: 0;
+    outline: none;
+    border: none;
+    border-top: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
+    display: block;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
   }
-});
+  input {
+    margin-right: 5px;
+  }
+  label {
+    font-size: 12px;
+  }
+`;
 
-const Message = styled.div({
-  borderBottom: '1px #e9ecec solid',
-  position: 'relative',
-  padding: '10px',
-  fontSize: '14px',
-  '& p': {
-    margin: 0
+const Message = styled.div`
+  border-bottom: ${({ theme }) =>
+    css`1px solid ${colorToString(theme.border)}`};
+  position: relative;
+  padding: 10px;
+  font-size: 14px;
+  p {
+    margin: 0;
   }
-});
+`;
 
 const MessageAuthor = styled.p({
   fontWeight: 'bold'
 });
 
-const MessageTime = styled.span({
-  position: 'absolute',
-  top: '10px',
-  right: '10px',
-  color: '#848d90',
-  fontSize: '12px'
-});
+const MessageTime = styled.span`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: ${({ theme }) => colorToString(theme.foreground)};
+  font-size: 12px;
+`;
 
 const MessageText = styled.p({
   wordBreak: 'break-all'
@@ -120,7 +131,9 @@ const ChatMessageGroup: React.SFC<ChatMessageGroupProps> = ({
     </MessageAuthor>
     <MessageTime>{chats[0].time.toLocaleTimeString()}</MessageTime>
     {chats.map(message => (
-      <MessageText key={message.id}>{message.body}</MessageText>
+      <MessageText key={message.id}>
+        <Linkify text={emojify(message.body)} />
+      </MessageText>
     ))}
   </Message>
 );
@@ -155,7 +168,7 @@ const ChatContainer: React.SFC<Props> = ({
       <ChatList
         room={roomAddress}
         renderGroup={({ chats, peer }) => (
-          <ChatMessageGroup chats={chats} peer={peer} />
+          <ChatMessageGroup key={chats[0].id} chats={chats} peer={peer} />
         )}
       />
     </StyledStayDownContainer>

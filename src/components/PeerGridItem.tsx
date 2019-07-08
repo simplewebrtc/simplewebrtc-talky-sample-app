@@ -1,8 +1,9 @@
 import { Media, Peer, PeerControls, Video } from '@andyet/simplewebrtc';
 import VolumeOffIcon from 'material-icons-svg/components/baseline/VolumeOff';
 import VolumeUpIcon from 'material-icons-svg/components/baseline/VolumeUp';
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+import HiddenPeers from '../contexts/HiddenPeers';
 import { TalkyButton } from '../styles/button';
 import AudioOnlyPeer from './AudioOnlyPeer';
 
@@ -23,13 +24,19 @@ const MuteButton = styled(TalkyButton)({
 
 const DisplayName = styled.span({
   display: 'inline-block',
-  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  backgroundColor: 'black',
+  opacity: 0.3,
   color: 'white',
   marginTop: '16px',
   marginLeft: '16px',
   fontSize: '16px',
   padding: '2px 7px 2px 9px',
-  borderRadius: '5px'
+  borderRadius: '5px',
+  transition: 'opacity 200ms linear',
+  '&:hover': {
+    cursor: 'pointer',
+    opacity: 0.7
+  }
 });
 
 const PictureInPictureContainer = styled.div({
@@ -54,25 +61,34 @@ interface PeerGridItemMediaProps {
 // available from a peer. It will render video if the peer is sending video,
 // otherwise it renders an audio-only display.
 const PeerGridItemMedia: React.SFC<PeerGridItemMediaProps> = ({ media }) => {
-  const videoStreams = media.filter(m => m.kind === 'video');
+  const videoStreams = media.filter(
+    m => m.kind === 'video' && !m.remoteDisabled
+  );
   const audioStreams = media.filter(m => m.kind === 'audio');
 
   if (videoStreams.length > 0) {
     // Choose last media as it is most likely the screenshare.
+    const webcamStreams = videoStreams.filter(s => !s.screenCapture);
+    const screenCaptureStreams = videoStreams.filter(s => s.screenCapture);
+
     if (videoStreams.length === 1) {
       return <Video media={videoStreams[0]} />;
+    }
+
+    if (screenCaptureStreams.length === 0) {
+      return <Video media={webcamStreams[0]} />;
     }
 
     return (
       <PictureInPictureContainer>
         {/* Screenshare */}
-        <Video media={videoStreams[1]} />
+        <Video media={screenCaptureStreams[0]} />
         {/* Camera */}
-        <Video media={videoStreams[0]} />
+        <Video media={webcamStreams[0]} />
       </PictureInPictureContainer>
     );
   } else if (audioStreams.length > 0) {
-    return <AudioOnlyPeer audio={audioStreams[0]} />;
+    return <AudioOnlyPeer />;
   }
 
   return <div>No media</div>;
@@ -104,7 +120,9 @@ const RttContainer = styled.div({
 });
 
 const MuteIndicator = styled.span({
-  textAlign: 'center'
+  textAlign: 'center',
+  fontSize: '48px',
+  opacity: 0.8
 });
 
 function allAudioIsUnmuted(media: Media[]): boolean {
@@ -124,35 +142,44 @@ interface PeerGridItemOverlayProps {
 const PeerGridItemOverlay: React.SFC<PeerGridItemOverlayProps> = ({
   peer,
   audioIsMuted
-}) => (
-  <Overlay>
-    <div>
-      <DisplayName>{peer.displayName}</DisplayName>
-    </div>
-    <RttContainer>{peer.rtt && <span>{peer.rtt}</span>}</RttContainer>
-    <MuteIndicator>{peer.muted || audioIsMuted ? 'Muted' : null}</MuteIndicator>
-    <PeerControls
-      peer={peer}
-      render={({ isMuted, mute, unmute }) => (
-        <div>
-          <MuteButton onClick={() => (isMuted ? unmute() : mute())}>
-            {isMuted ? (
-              <>
-                <VolumeOffIcon fill="white" />
-                <span>Unmute</span>
-              </>
-            ) : (
-              <>
-                <VolumeUpIcon fill="white" />
-                <span>Mute</span>
-              </>
-            )}
-          </MuteButton>
-        </div>
-      )}
-    />
-  </Overlay>
-);
+}) => {
+  const { togglePeer } = useContext(HiddenPeers);
+  return (
+    <Overlay>
+      <div>
+        <DisplayName onClick={() => togglePeer(peer.id)}>
+          {`X ${peer.displayName}`}
+        </DisplayName>
+      </div>
+      <RttContainer>{peer.rtt && <span>{peer.rtt}</span>}</RttContainer>
+      <MuteIndicator>
+        {peer.muted || audioIsMuted ? (
+          <VolumeOffIcon fill={peer.speaking ? 'red' : 'white'} />
+        ) : null}
+      </MuteIndicator>
+      <PeerControls
+        peer={peer}
+        render={({ isMuted, mute, unmute }) => (
+          <div>
+            <MuteButton onClick={() => (isMuted ? unmute() : mute())}>
+              {isMuted ? (
+                <>
+                  <VolumeOffIcon fill="white" />
+                  <span>Unmute</span>
+                </>
+              ) : (
+                <>
+                  <VolumeUpIcon fill="white" />
+                  <span>Mute</span>
+                </>
+              )}
+            </MuteButton>
+          </div>
+        )}
+      />
+    </Overlay>
+  );
+};
 
 interface PeerGridItemProps {
   peer: Peer;

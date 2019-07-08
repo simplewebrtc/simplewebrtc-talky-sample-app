@@ -1,5 +1,5 @@
 import { ChatGroup } from '@andyet/simplewebrtc';
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 interface Props {
   groups: ChatGroup[];

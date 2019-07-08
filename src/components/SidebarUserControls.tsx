@@ -1,35 +1,15 @@
-import { LocalMediaList, UserControls, Video } from '@andyet/simplewebrtc';
-import React, { useEffect } from 'react';
+import {
+  LocalMediaList,
+  Media,
+  MediaControls,
+  UserControls,
+  Video
+} from '@andyet/simplewebrtc';
+import React from 'react';
 import styled from 'styled-components';
+import DisplayNameInput from './DisplayNameInput';
 import LocalMediaControls from './LocalMediaControls';
-
-const DISPLAY_NAME_SETTINGS_KEY = '@andyet/talky-core-settings.nick';
-
-interface LocalStorageDisplayNameSetterProps {
-  displayName: string;
-  setDisplayName: (displayName: string) => void;
-}
-
-const LocalStorageDisplayNameSetter: React.SFC<
-  LocalStorageDisplayNameSetterProps
-> = ({ displayName, setDisplayName }) => {
-  useEffect(() => {
-    const storedDisplayName = localStorage.getItem(DISPLAY_NAME_SETTINGS_KEY);
-    if (
-      storedDisplayName !== null &&
-      storedDisplayName !== '' &&
-      (displayName === '' || displayName === 'Anonymous')
-    ) {
-      setDisplayName(storedDisplayName);
-    } else if (
-      displayName !== 'Anonymous' &&
-      displayName !== storedDisplayName
-    ) {
-      localStorage.setItem(DISPLAY_NAME_SETTINGS_KEY, displayName);
-    }
-  }, [displayName]);
-  return null;
-};
+import Tooltip from './Tooltip';
 
 const LocalVideo = styled.div({
   position: 'relative',
@@ -74,12 +54,61 @@ const EmptyVideo = styled.div({
   marginBottom: '10px'
 });
 
+const ToggleContainer = styled.label({
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: '5px'
+});
+
 interface Props {
   activeSpeakerView: boolean;
   toggleActiveSpeakerView: () => void;
   pttMode: boolean;
   togglePttMode: (e: React.SyntheticEvent<Element>) => void;
 }
+
+interface LocalScreenProps {
+  screenshareMedia: Media;
+}
+
+const LocalScreenContainer = styled.div({
+  position: 'relative'
+});
+
+const LocalScreenOverlay = styled.div({
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'black',
+  opacity: 0,
+  transition: 'opacity 200ms linear',
+  color: 'white',
+  zIndex: 100,
+  '&:hover': {
+    cursor: 'pointer',
+    opacity: 0.8
+  }
+});
+
+const LocalScreen: React.SFC<LocalScreenProps> = ({ screenshareMedia }) => (
+  <MediaControls
+    media={screenshareMedia}
+    autoRemove={true}
+    render={({ media, stopSharing }) => (
+      <LocalScreenContainer>
+        <LocalScreenOverlay onClick={stopSharing}>
+          <span>Stop sharing</span>
+        </LocalScreenOverlay>
+        {media && <Video media={media!} />}
+      </LocalScreenContainer>
+    )}
+  />
+);
 
 const SidebarUserControls: React.SFC<Props> = ({
   activeSpeakerView,
@@ -93,21 +122,18 @@ const SidebarUserControls: React.SFC<Props> = ({
       mute,
       unmute,
       isPaused,
+      isSpeaking,
+      isSpeakingWhileMuted,
       pauseVideo,
       resumeVideo,
       user,
       setDisplayName
     }) => (
       <div>
-        <LocalStorageDisplayNameSetter
-          displayName={user.displayName}
-          setDisplayName={setDisplayName}
-        />
         <LocalVideo>
-          <input
-            placeholder="Your name (click to edit)"
-            value={user.displayName === 'Anonymous' ? '' : user.displayName}
-            onChange={e => setDisplayName(e.target.value)}
+          <DisplayNameInput
+            displayName={user.displayName}
+            setDisplayName={setDisplayName}
           />
           <LocalMediaList
             shared={true}
@@ -116,9 +142,13 @@ const SidebarUserControls: React.SFC<Props> = ({
               if (videos.length > 0) {
                 return (
                   <>
-                    {videos.map(m => (
-                      <Video key={m.id} media={m} />
-                    ))}
+                    {videos.map(m =>
+                      m.screenCapture ? (
+                        <LocalScreen screenshareMedia={m} />
+                      ) : (
+                        <Video key={m.id} media={m} />
+                      )
+                    )}
                   </>
                 );
               }
@@ -134,27 +164,35 @@ const SidebarUserControls: React.SFC<Props> = ({
           isPaused={isPaused}
           resumeVideo={resumeVideo}
           pauseVideo={pauseVideo}
+          isSpeaking={isSpeaking}
+          isSpeakingWhileMuted={isSpeakingWhileMuted}
         />
         <RoomModeToggles>
+          {/*
+              Disabled until SDK changes fixed to handle case where no one is speaking.
+
+              <div>
+                <ToggleContainer>
+                  <input
+                    type="checkbox"
+                    checked={activeSpeakerView}
+                    onChange={toggleActiveSpeakerView}
+                  />
+                  Active Speaker View
+                  <Tooltip text="Only show the active speaker in the podium" />
+                </ToggleContainer>
+              </div>
+            */}
           <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={activeSpeakerView}
-                onChange={toggleActiveSpeakerView}
-              />
-              Active Speaker View
-            </label>
-          </div>
-          <div>
-            <label>
+            <ToggleContainer>
               <input
                 type="checkbox"
                 checked={pttMode}
                 onChange={togglePttMode}
               />
               Walkie Talkie Mode
-            </label>
+              <Tooltip text="Use spacebar to toggle your microphone on/off" />
+            </ToggleContainer>
           </div>
         </RoomModeToggles>
       </div>

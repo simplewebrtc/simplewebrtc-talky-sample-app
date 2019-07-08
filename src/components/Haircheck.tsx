@@ -2,10 +2,11 @@ import { LocalMediaList } from '@andyet/simplewebrtc';
 import MicIcon from 'material-icons-svg/components/baseline/Mic';
 import VideocamIcon from 'material-icons-svg/components/baseline/Videocam';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import Placeholders from '../contexts/Placeholders';
 import { TalkyButton } from '../styles/button';
 import mq from '../styles/media-queries';
+import { colorToString } from '../utils/colorify';
 import { Error, Info } from './Alerts';
 import DeviceDropdown from './DeviceDropdown';
 import DeviceSelector from './DeviceSelector';
@@ -32,66 +33,42 @@ const Container = styled.div({
 });
 
 const Header = styled.div({
-  gridArea: 'header',
-  textAlign: 'center',
-  paddingTop: '40px',
-  [mq.SMALL_DESKTOP]: {
-    marginBottom: '30px'
-  },
-  '& h2': {
-    fontSize: '36px',
-    fontWeight: 300,
-    marginBottom: '10px',
-
-    '& svg': {
-      height: '60px',
-      verticalAlign: 'text-bottom',
-      marginLeft: '10px',
-      marginRight: '10px',
-      marginTop: '-10px'
-    }
-  },
-  '& p': {
-    fontSize: '14px'
-  },
-  '& a': {
-    color: '#00b0eb',
-    '& hover': {
-      color: '#008dbc'
-    }
-  }
+  gridArea: 'header'
 });
 
-const Controls = styled.div({
-  gridArea: 'controls',
-  padding: '0 10px',
-  [mq.SMALL_DESKTOP]: {
-    padding: '0',
-    width: '300px'
-  },
-  '& select': {
-    border: '1px solid #e9ecec',
-    height: '40px',
-    padding: '10px',
-    marginTop: '5px',
-    backgroundColor: 'white',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    width: '100%'
-  },
-  '& label': {
-    display: 'block',
-    fontWeight: 'bold',
-    fontSize: '12px',
-    marginTop: '10px',
-    marginBottom: '10px',
-    '& svg': {
-      fontSize: '20px',
-      verticalAlign: 'middle',
-      marginRight: '5px'
+const Controls = styled.div`
+  grid-area: controls;
+  padding: 0 10px;
+  ${mq.SMALL_DESKTOP} {
+    padding: 0;
+    width: 300px;
+  }
+  select {
+    border: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
+    color: ${({ theme }) => colorToString(theme.foreground)};
+    height: 40px;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: ${({ theme }) => colorToString(theme.background)};
+    font-size: 12px;
+    font-weight: bold;
+    width: 100%;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    svg {
+      font-size: 20px;
+      vertical-align: middle;
+      margin-right: 5px;
+      fill: ${({ theme }) => colorToString(theme.foreground)};
     }
   }
-});
+`;
 
 const Preview = styled.div({
   gridArea: 'preview',
@@ -107,14 +84,25 @@ const PermissionButton = styled(TalkyButton)({
 
 const Haircheck: React.SFC = () => (
   <Container>
-    <Header>
-      <h2>
-        Ready to join a video chat?
-      </h2>
-      <p>
-        SimpleWebRTC Demo Talky is truly simple video chat and screen sharing for groups.
-      </p>
-    </Header>
+    <Placeholders.Consumer>
+      {({ haircheckHeaderPlaceholder }) => (
+        <Header
+          ref={node => {
+            if (
+              node &&
+              haircheckHeaderPlaceholder &&
+              node.childElementCount === 0
+            ) {
+              const el = haircheckHeaderPlaceholder();
+              if (el) {
+                node.appendChild(el);
+              }
+            }
+          }}
+        />
+      )}
+    </Placeholders.Consumer>
+    <Header />
     <Preview>
       <LocalMediaList
         screen={false}
@@ -131,7 +119,7 @@ const Haircheck: React.SFC = () => (
     <Controls>
       <div>
         <DeviceSelector
-          kind="camera"
+          kind="video"
           render={({
             hasDevice,
             permissionDenied,
@@ -178,7 +166,7 @@ const Haircheck: React.SFC = () => (
       </div>
       <div>
         <DeviceSelector
-          kind="microphone"
+          kind="audio"
           render={({
             hasDevice,
             permissionDenied,
@@ -229,7 +217,9 @@ const Haircheck: React.SFC = () => (
                     }
 
                     if (!detected) {
-                      return <Error>No media detected.</Error>;
+                      return (
+                        <Info>No input detected from your microphone.</Info>
+                      );
                     }
 
                     return null;

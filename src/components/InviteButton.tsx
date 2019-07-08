@@ -2,18 +2,25 @@ import LinkIcon from 'material-icons-svg/components/baseline/Link';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { TalkyButton } from '../styles/button';
+import { colorToString } from '../utils/colorify';
 
-const Button = styled(TalkyButton)({
-  gridArea: 'invite',
-  backgroundColor: '#00b0eb',
-  color: 'white',
-  '&:hover': {
-    backgroundColor: 'rgb(0, 158, 230)'
-  },
-  '& svg': {
-    fill: 'white'
+const Button = styled(TalkyButton)`
+  grid-area: invite;
+  background-color: ${({ theme }) =>
+    colorToString(theme.buttonPrimaryBackground)};
+  color: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
+  :hover {
+    background-color: ${({ theme }) =>
+      colorToString(theme.buttonPrimaryBackgroundHover)};
   }
-});
+  :active {
+    background-color: ${({ theme }) =>
+      colorToString(theme.buttonPrimaryBackgroundActive)};
+  }
+  svg {
+    fill: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
+  }
+`;
 
 interface State {
   copied: boolean;

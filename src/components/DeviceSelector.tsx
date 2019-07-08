@@ -25,7 +25,7 @@ interface DeviceSelectorRenderProps {
 }
 
 interface Props {
-  kind: 'camera' | 'microphone';
+  kind: 'video' | 'audio';
   render: (props: DeviceSelectorRenderProps) => React.ReactNode;
 }
 
@@ -45,8 +45,8 @@ export default class DeviceSelector extends Component<Props, State> {
     const { kind, render } = this.props;
     return (
       <DeviceList
-        videoInput={kind === 'camera'}
-        audioInput={kind === 'microphone'}
+        videoInput={kind === 'video'}
+        audioInput={kind === 'audio'}
         render={({
           devices,
           hasCamera,
@@ -58,65 +58,83 @@ export default class DeviceSelector extends Component<Props, State> {
           requestingCapture
         }) => {
           if (
-            (kind === 'camera' && !hasCamera && !cameraPermissionDenied) ||
-            (kind === 'microphone' &&
-              !hasMicrophone &&
-              !microphonePermissionDenied)
+            (kind === 'video' && !hasCamera && !cameraPermissionDenied) ||
+            (kind === 'audio' && !hasMicrophone && !microphonePermissionDenied)
           ) {
             return render({ hasDevice: false });
           }
 
           if (
-            (kind === 'camera' && cameraPermissionDenied) ||
-            (kind === 'microphone' && microphonePermissionDenied)
+            (kind === 'video' && cameraPermissionDenied) ||
+            (kind === 'audio' && microphonePermissionDenied)
           ) {
             return render({ permissionDenied: true });
           }
 
           if (
-            (kind === 'camera' && requestingCameraCapture) ||
-            (kind === 'microphone' && requestingMicrophoneCapture)
+            (kind === 'video' && requestingCameraCapture) ||
+            (kind === 'audio' && requestingMicrophoneCapture)
           ) {
             return render({ requestingCapture: true });
           }
 
           return (
             <LocalMediaList
-              video={kind === 'camera'}
-              audio={kind === 'microphone'}
               screen={false}
               render={({ media, removeMedia }) => {
+                const videoStreams = media.filter(m => m.kind === 'video');
+                const audioStreams = media.filter(m => m.kind === 'audio');
+                const mediaForKind =
+                  kind === 'video' ? videoStreams : audioStreams;
+                const existingNonKindMedia =
+                  kind === 'video' ? audioStreams : videoStreams;
+
                 if (!devices.length || this.state.mediaTypeDisabled) {
                   return (
                     <RequestUserMedia
-                      video={kind === 'camera'}
-                      audio={kind === 'microphone'}
+                      video={kind === 'video'}
+                      audio={kind === 'audio'}
                       share={false}
                       render={getMedia => {
                         return render({
                           requestPermissions: () => {
                             this.setState({ mediaTypeDisabled: false });
                             return getMedia({
-                              audio: kind === 'microphone',
-                              video: kind === 'camera'
+                              audio: kind === 'audio',
+                              video: kind === 'video'
                             });
                           }
                         });
                       }}
                     />
                   );
-                } else if (!media.length) {
+                } else if (!mediaForKind.length) {
                   return (
                     <RequestUserMedia
-                      video={kind === 'camera'}
-                      audio={kind === 'microphone'}
+                      replaceVideo={
+                        videoStreams.length > 0
+                          ? videoStreams[videoStreams.length - 1].id
+                          : undefined
+                      }
+                      replaceAudio={
+                        audioStreams.length > 0
+                          ? audioStreams[audioStreams.length - 1].id
+                          : undefined
+                      }
                       share={false}
                       render={getMedia => {
                         if (!requestingCapture) {
-                          getMedia({
-                            audio: kind === 'microphone',
-                            video: kind === 'camera'
-                          });
+                          const constraints: MediaStreamConstraints = {
+                            audio:
+                              kind === 'audio' ||
+                              (kind === 'video' &&
+                                existingNonKindMedia.length > 0),
+                            video:
+                              kind === 'video' ||
+                              (kind === 'audio' &&
+                                existingNonKindMedia.length > 0)
+                          };
+                          getMedia(constraints);
                         }
                         return null;
                       }}
@@ -124,17 +142,23 @@ export default class DeviceSelector extends Component<Props, State> {
                   );
                 }
 
-                const latestMedia = media[media.length - 1];
+                const latestMedia = mediaForKind[mediaForKind.length - 1];
+                const latestOtherMedia =
+                  existingNonKindMedia[existingNonKindMedia.length - 1];
                 return (
                   <RequestUserMedia
                     replaceVideo={
-                      kind === 'camera' && latestMedia
+                      kind === 'video' && latestMedia
                         ? latestMedia.id
+                        : latestOtherMedia
+                        ? latestOtherMedia.id
                         : undefined
                     }
                     replaceAudio={
-                      kind === 'microphone' && latestMedia
+                      kind === 'audio' && latestMedia
                         ? latestMedia.id
+                        : latestOtherMedia
+                        ? latestOtherMedia.id
                         : undefined
                     }
                     share={false}
@@ -148,11 +172,20 @@ export default class DeviceSelector extends Component<Props, State> {
                             if (this.state.mediaTypeDisabled) {
                               this.setState({ mediaTypeDisabled: false });
                             }
-                            getMedia({
-                              [kind === 'camera' ? 'video' : 'audio']: {
+                            const getMediaOptions: MediaStreamConstraints = {
+                              [kind === 'video' ? 'video' : 'audio']: {
                                 deviceId: { exact: deviceId }
                               }
-                            });
+                            };
+                            if (existingNonKindMedia.length > 0) {
+                              getMediaOptions[existingNonKindMedia[0].kind] = {
+                                deviceId: {
+                                  exact: existingNonKindMedia[0].track.getSettings()
+                                    .deviceId
+                                }
+                              };
+                            }
+                            getMedia(getMediaOptions);
                           } else {
                             this.setState({ mediaTypeDisabled: true }, () => {
                               for (const m of media) {

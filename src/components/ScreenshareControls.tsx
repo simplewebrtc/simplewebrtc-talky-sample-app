@@ -26,6 +26,10 @@ const ButtonLink = styled.a({
   alignItems: 'center'
 });
 
+const EmptySpacer = styled.span({
+  width: '120px'
+});
+
 // ScreenshareControls displays a button that activates the screenshare flow.
 // It also provides a link to install the screenshare extension if it is
 // required by the user's browser.
@@ -55,7 +59,7 @@ const ScreenshareControls: React.SFC = () => (
         );
       }
       if (!sharing.available) {
-        return null;
+        return <EmptySpacer />;
       }
     }}
   />

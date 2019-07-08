@@ -1,5 +1,5 @@
 import { Peer } from '@andyet/simplewebrtc';
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 // Usage
 /*

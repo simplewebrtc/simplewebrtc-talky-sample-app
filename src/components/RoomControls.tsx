@@ -3,9 +3,10 @@ import LockIcon from 'material-icons-svg/components/baseline/Lock';
 import LockOpenIcon from 'material-icons-svg/components/baseline/LockOpen';
 import React from 'react';
 import Modal from 'react-modal';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { TalkyButton } from '../styles/button';
+import { colorToString } from '../utils/colorify';
+import getConfigFromMetaTag from '../utils/metaConfig';
 import InviteButton from './InviteButton';
 import PasswordEntry from './PasswordEntry';
 
@@ -14,7 +15,7 @@ const LockButton = styled(TalkyButton)({
 });
 
 const LeaveButton = styled(TalkyButton)({
-  gridArea: 'leave'
+  width: '100%'
 });
 
 const Container = styled.div({
@@ -28,24 +29,23 @@ const Container = styled.div({
   marginBottom: '10px'
 });
 
-const StyledModal = styled(Modal)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'rgba(255, 255, 255, 0.75)',
-  position: 'relative',
-  top: 'calc(50% - 115px)',
-  bottom: '40px',
-  border: '1px solid rgb(183, 192, 195)',
-  background: 'white',
-  overflow: 'auto',
-  borderRadius: '4px',
-  outline: 'none',
-  padding: '35px 20px 20px',
-  maxWidth: '600px',
-  margin: '0px auto',
-  height: '260px'
-});
+const StyledModal = styled(Modal)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ theme }) => colorToString(theme.background)};
+  position: relative;
+  top: calc(50% - 115px);
+  bottom: 40px;
+  border: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
+  overflow: auto;
+  border-radius: 4px;
+  outline: none;
+  padding: 35px 20px 20px;
+  max-width: 600px;
+  margin: 0px auto;
+  height: 260px;
+`;
 
 const modalOverlayStyle = {
   zIndex: 1000,
@@ -71,49 +71,52 @@ const RoomControls: React.SFC<Props> = ({
   showPasswordModal,
   hidePasswordModal,
   setPassword
-}) => (
-  <Container>
-    <InviteButton />
-    <LockButton
-      onClick={
-        passwordRequired
-          ? () => {
-              setPassword('');
-            }
-          : showPasswordModal
-      }
-    >
-      {passwordRequired ? (
-        <>
-          <LockIcon fill="#505658" />
-          <span>Unlock</span>
-        </>
-      ) : (
-        <>
-          <LockOpenIcon fill="#505658" />
-          <span>Lock</span>
-        </>
-      )}
-    </LockButton>
-    <LeaveButton>
-      <Link to="/">
-        <CallEndIcon fill="#505658" />
-        <span>Leave</span>
-      </Link>
-    </LeaveButton>
-    <StyledModal
-      isOpen={shouldShowPasswordModal}
-      onRequestClose={hidePasswordModal}
-      style={{ overlay: modalOverlayStyle }}
-    >
-      <PasswordEntry
-        setting={true}
-        setPassword={setPassword}
-        passwordIsIncorrect={false}
-        onSubmit={hidePasswordModal}
-      />
-    </StyledModal>
-  </Container>
-);
+}) => {
+  const leaveUrl = getConfigFromMetaTag('leave-button-url');
+  return (
+    <Container>
+      <InviteButton />
+      <LockButton
+        onClick={
+          passwordRequired
+            ? () => {
+                setPassword('');
+              }
+            : showPasswordModal
+        }
+      >
+        {passwordRequired ? (
+          <>
+            <LockIcon fill="#505658" />
+            <span>Unlock</span>
+          </>
+        ) : (
+          <>
+            <LockOpenIcon fill="#505658" />
+            <span>Lock</span>
+          </>
+        )}
+      </LockButton>
+      <a style={{ gridArea: 'leave' }} href={leaveUrl ? leaveUrl : '/'}>
+        <LeaveButton>
+          <CallEndIcon fill="#505658" />
+          <span>Leave</span>
+        </LeaveButton>
+      </a>
+      <StyledModal
+        isOpen={shouldShowPasswordModal}
+        onRequestClose={hidePasswordModal}
+        style={{ overlay: modalOverlayStyle }}
+      >
+        <PasswordEntry
+          setting={true}
+          setPassword={setPassword}
+          passwordIsIncorrect={false}
+          onSubmit={hidePasswordModal}
+        />
+      </StyledModal>
+    </Container>
+  );
+};
 
 export default RoomControls;

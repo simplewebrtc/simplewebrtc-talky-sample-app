@@ -1,8 +1,12 @@
 import { Peer, PeerControls, PeerList } from '@andyet/simplewebrtc';
+import VisibilityIcon from 'material-icons-svg/components/baseline/Visibility';
+import VisibilityOffIcon from 'material-icons-svg/components/baseline/VisibilityOff';
 import VolumeOffIcon from 'material-icons-svg/components/baseline/VolumeOff';
 import VolumeUpIcon from 'material-icons-svg/components/baseline/VolumeUp';
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+import HiddenPeers from '../contexts/HiddenPeers';
+import Placeholders from '../contexts/Placeholders';
 import { TalkyButton } from '../styles/button';
 
 const Button = styled(TalkyButton)({
@@ -20,23 +24,34 @@ interface PeerListItemProps {
   peer: Peer;
 }
 // PeerListItem renders the displayName and mute controls for a peer.
-const PeerListItem: React.SFC<PeerListItemProps> = ({ peer }) => (
-  <li>
-    <PeerControls
-      peer={peer}
-      render={({ isMuted, mute, unmute }) => (
-        <Button onClick={() => (isMuted ? unmute() : mute())}>
-          {isMuted ? (
-            <VolumeOffIcon fill="#505658" />
-          ) : (
-            <VolumeUpIcon fill="#505658" />
-          )}
-        </Button>
-      )}
-    />
-    {peer.displayName || 'Anonymous'}
-  </li>
-);
+const PeerListItem: React.SFC<PeerListItemProps> = ({ peer }) => {
+  const { hiddenPeers, togglePeer } = useContext(HiddenPeers);
+  const isHidden = hiddenPeers.includes(peer.id);
+  return (
+    <li>
+      <PeerControls
+        peer={peer}
+        render={({ isMuted, mute, unmute }) => (
+          <Button onClick={() => (isMuted ? unmute() : mute())}>
+            {isMuted ? (
+              <VolumeOffIcon fill="#505658" />
+            ) : (
+              <VolumeUpIcon fill="#505658" />
+            )}
+          </Button>
+        )}
+      />
+      <Button onClick={() => togglePeer(peer.id)}>
+        {isHidden ? (
+          <VisibilityOffIcon fill="#505658" />
+        ) : (
+          <VisibilityIcon fill="#505658" />
+        )}
+      </Button>
+      {peer.displayName || 'Anonymous'}
+    </li>
+  );
+};
 
 interface Props {
   roomAddress: string;
@@ -52,7 +67,26 @@ const Roster: React.SFC<Props> = ({ roomAddress }) => (
             <PeerListItem key={peer.id} peer={peer} />
           ))}
         </Container>
-      ) : <span />;
+      ) : (
+        <Placeholders.Consumer>
+          {({ emptyRosterPlaceholder }) => (
+            <div
+              ref={node => {
+                if (
+                  node &&
+                  emptyRosterPlaceholder &&
+                  node.childElementCount === 0
+                ) {
+                  const el = emptyRosterPlaceholder();
+                  if (el) {
+                    node.appendChild(el);
+                  }
+                }
+              }}
+            />
+          )}
+        </Placeholders.Consumer>
+      );
     }}
   />
 );

@@ -1,4 +1,4 @@
-import { Media, VolumeMeter } from '@andyet/simplewebrtc';
+import { Media } from '@andyet/simplewebrtc';
 import React, { Component } from 'react';
 
 interface RenderProps {
@@ -14,6 +14,7 @@ interface Props {
 
 interface State {
   currentTime: number;
+  mountTime: number;
 }
 
 export default class InputChecker extends Component<Props, State> {
@@ -21,7 +22,7 @@ export default class InputChecker extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { currentTime: 0 };
+    this.state = { currentTime: 0, mountTime: Date.now() };
     this.interval = null;
   }
 
@@ -49,6 +50,10 @@ export default class InputChecker extends Component<Props, State> {
       return this.props.render({ detected: true, lost: false });
     }
 
-    return this.props.render({ detected: false });
+    if (new Date().getTime() - this.state.mountTime > this.props.threshold) {
+      return this.props.render({ detected: false });
+    }
+
+    return null;
   }
 }

@@ -10,29 +10,15 @@ import {
 } from 'redux';
 import Thunk from 'redux-thunk';
 import App from './App';
-import './index.css';
+import { PlaceholderGenerator } from './types';
+import getConfigFromMetaTag from './utils/metaConfig';
+import randomRoomName from './utils/randomRoomName';
 
+const configUrl = getConfigFromMetaTag('config-url');
+const CONFIG_URL = configUrl ? configUrl : '';
 
-// ====================================================================
-// !! IMPORTANT SETUP !!
-// ====================================================================
-// Set this to the API key you received with your SimpleWebRTC account.
-// You can visit accounts.simplewebrtc.com to find your API key.
-// ====================================================================
-const API_KEY: string = '';
-
-// ====================================================================
-// !! IMPORTANT SETUP !!
-// ====================================================================
-// If you are using custom user data, the config URL needs to be
-// switched to the /user/ endpoint, like so:
-//
-// const CONFIG_URL = `https://api.simplewebrtc.com/config/user/${API_KEY}`;
-//
-// You can find more info about custom user data at:
-// https://docs.simplewebrtc.com/#/User_Data
-// ====================================================================
-const CONFIG_URL = `https://api.simplewebrtc.com/config/guest/${API_KEY}`;
+const userData = getConfigFromMetaTag('user-data');
+const USER_DATA = userData ? userData : '';
 
 const compose =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || ReduxCompose;
@@ -42,25 +28,84 @@ const store = createStore(
   compose(applyMiddleware(Thunk))
 );
 
-// These are exposed to make it easier to inspect while debugging and
-// learning how SimpleWebRTC works.
 (window as any).store = store;
 (window as any).actions = Actions;
 (window as any).selectors = Selectors;
 
-if (!API_KEY) {
-  ReactDOM.render(
-    <div>
-      <p>Edit src/index.tsx to set your API key.</p>
-      <p>Visit <a href="https://simplewebrtc.com">simplewebrtc.com</a> to sign up and get an API key.</p>
-    </div>,
-    document.getElementById('root')
-  );
-} else {
+// Force the page to reload after 12 hours
+setTimeout(() => {
+  window.location.reload(true);
+}, 1000 * 60 * 60 * 12);
+
+interface RunConfig {
+  roomName: string;
+  root: HTMLElement;
+  gridPlaceholder?: PlaceholderGenerator;
+  haircheckHeaderPlaceholder?: PlaceholderGenerator;
+  emptyRosterPlaceholder?: PlaceholderGenerator;
+  homepagePlaceholder?: PlaceholderGenerator;
+}
+
+const run = ({
+  roomName,
+  root,
+  gridPlaceholder,
+  haircheckHeaderPlaceholder,
+  emptyRosterPlaceholder,
+  homepagePlaceholder
+}: RunConfig) => {
+  if (CONFIG_URL.endsWith('YOUR_API_KEY')) {
+    ReactDOM.render(
+      <div className="container" style={{textAlign: 'left'}}>
+        <h1>Configuration Setup Needed:</h1>
+        <p>Edit <code>public/index.html</code> to add your API key to the configuration URL.</p>
+        <p>Visit <a href="https://simplewebrtc.com">simplewebrtc.com</a> to sign up and get an API key.</p>
+        <h2>How to set your API key:</h2>
+        <p>See the meta tag section marked <code>IMPORTANT SETUP</code> in <code>public/index.html</code>:</p>
+        <pre style={{ textAlign: 'left' }}>
+          {'<!-- IMPORTANT SETUP -->'}<br />
+          {'<!-- Change the YOUR_API_KEY section of the config URL to match your API key -->'}<br />
+          {`<meta
+  name="simplewebrtc-config-url"
+  content="https://api.simplewebrtc.com/config/guest/YOUR_API_KEY"
+/>`}
+        </pre>
+      </div>,
+      root
+    );
+    return;
+  }
   ReactDOM.render(
     <Provider store={store}>
-      <App configUrl={CONFIG_URL} />
+      <App
+        roomName={roomName}
+        configUrl={CONFIG_URL}
+        userData={USER_DATA}
+        gridPlaceholder={gridPlaceholder ? gridPlaceholder : null}
+        haircheckHeaderPlaceholder={
+          haircheckHeaderPlaceholder ? haircheckHeaderPlaceholder : null
+        }
+        emptyRosterPlaceholder={
+          emptyRosterPlaceholder ? emptyRosterPlaceholder : null
+        }
+        homepagePlaceholder={homepagePlaceholder ? homepagePlaceholder : null}
+      />
     </Provider>,
-    document.getElementById('root')
+    root
   );
-}
+};
+
+const loadTemplate = (id: string): DocumentFragment | null => {
+  const el = document.getElementById(id);
+  if (el !== null && el.nodeName === 'TEMPLATE') {
+    return document.importNode((el as HTMLTemplateElement).content, true);
+  }
+
+  return null;
+};
+
+export default {
+  run,
+  loadTemplate,
+  randomRoomName
+};
