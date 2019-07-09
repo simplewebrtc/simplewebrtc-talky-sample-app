@@ -1,5 +1,7 @@
 # SimpleWebRTC Sample Talky App
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/SimpleWebRTC/simplewebrtc-talky-sample-app.svg)](https://greenkeeper.io/)
+
 To get started, you will first need to edit `public/index.html` to set your API key.
 
 See the section marked `IMPORTANT SETUP`, and change the placeholder `YOUR_API_KEY` to be the API key you were provided.
