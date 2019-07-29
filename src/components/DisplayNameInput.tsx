@@ -12,7 +12,18 @@ function setLocalDisplayName(displayName: string) {
 }
 
 function getLocalDisplayName() {
-  return localStorage.getItem(DISPLAY_NAME_SETTINGS_KEY) || '';
+  const name = localStorage.getItem(DISPLAY_NAME_SETTINGS_KEY) || '';
+
+  // The old talky-core saved all data by first JSON stringifying,
+  // then JSON parsing on load. So we need to convert old data to
+  // the new format:
+  if (name === '"null"') {
+    return null;
+  }
+  if (name.startsWith('"') && name.endsWith('"')) {
+    return name.substring(1, name.length - 1); 
+  }
+  return name;
 }
 
 const DisplayNameInput: React.SFC<Props> = ({

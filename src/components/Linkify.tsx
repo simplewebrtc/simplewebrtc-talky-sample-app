@@ -1,6 +1,6 @@
 import React from 'react';
 
-const re = /((?:(?:https|http):\/\/)?(?:[a-z0-9.]*\.[a-z]+))/gi;
+const re = /((?:(?:https|http):\/\/)?(?:[a-z0-9.]*\.[a-z]+)(\/[^\s]*)?)/gi;
 
 function getUrls(text: string) {
   const matches = [];
@@ -15,6 +15,8 @@ function getUrls(text: string) {
 interface DetectedUrls {
   url?: string;
   text?: string;
+  scheme?: boolean;
+  slashes?: boolean;
 }
 
 function getTextSegments(text: string): DetectedUrls[] {
@@ -29,8 +31,13 @@ function getTextSegments(text: string): DetectedUrls[] {
     if (match.index === 0) {
       segments.push({ url: match[0] });
     } else if (match.index > 0) {
+      const url = match[0];
       segments.push({ text: text.slice(currentIndex, match.index) });
-      segments.push({ url: match[0] });
+      segments.push({
+        url,
+        scheme: url.startsWith('http:') || url.startsWith('http:'),
+        slashes: url.startsWith('//')
+      });
       currentIndex = match.index + match[0].length;
     }
     currentIndex = match.index + match[0].length;
@@ -55,7 +62,7 @@ const Linkify = React.memo<Props>(({ text }) => {
           return (
             <a
               key={s.url}
-              href={s.url}
+              href={s.scheme ? s.url : s.slashes ? s.url : `https://${s.url}`}
               target="_blank"
               rel="noopener noreferrer"
             >
