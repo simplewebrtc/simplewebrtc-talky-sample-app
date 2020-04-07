@@ -122,20 +122,10 @@ export default class DeviceSelector extends Component<Props, State> {
                           : undefined
                       }
                       share={false}
+                      audio={kind === 'audio' || (kind === 'video' && existingNonKindMedia.length > 0)}
+                      video={kind === 'video' || (kind === 'audio' && existingNonKindMedia.length > 0)}
+                      auto={!requestingCameraCapture}
                       render={getMedia => {
-                        if (!requestingCapture) {
-                          const constraints: MediaStreamConstraints = {
-                            audio:
-                              kind === 'audio' ||
-                              (kind === 'video' &&
-                                existingNonKindMedia.length > 0),
-                            video:
-                              kind === 'video' ||
-                              (kind === 'audio' &&
-                                existingNonKindMedia.length > 0)
-                          };
-                          getMedia(constraints);
-                        }
                         return null;
                       }}
                     />
