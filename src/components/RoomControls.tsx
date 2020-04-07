@@ -1,7 +1,7 @@
 import CallEndIcon from 'material-icons-svg/components/baseline/CallEnd';
 import LockIcon from 'material-icons-svg/components/baseline/Lock';
 import LockOpenIcon from 'material-icons-svg/components/baseline/LockOpen';
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import Modal from 'react-modal';
 import styled, { css } from 'styled-components';
 import { TalkyButton } from '../styles/button';
@@ -47,7 +47,7 @@ const StyledModal = styled(Modal)`
   height: 260px;
 `;
 
-const modalOverlayStyle = {
+const modalOverlayStyle: CSSProperties = {
   zIndex: 1000,
   position: 'fixed',
   top: '0',

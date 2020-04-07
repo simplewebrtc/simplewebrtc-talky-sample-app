@@ -24,7 +24,7 @@ const compose =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || ReduxCompose;
 const store = createStore(
   combineReducers({ simplewebrtc: reducer }),
-  { simplewebrtc: {} },
+  { simplewebrtc: {} as any },
   compose(applyMiddleware(Thunk))
 );
 
