@@ -1,18 +1,31 @@
-import { LocalMediaList } from '@andyet/simplewebrtc';
+import {
+  DeviceList,
+  LocalMediaList,
+  Media,
+  RequestUserMedia,
+  UserControls,
+  VolumeMeter
+} from '@andyet/simplewebrtc';
 import MicIcon from 'material-icons-svg/components/baseline/Mic';
 import VideocamIcon from 'material-icons-svg/components/baseline/Videocam';
+import VolumeUpIcon from 'material-icons-svg/components/baseline/VolumeUp';
 import React from 'react';
 import styled, { css } from 'styled-components';
+
 import Placeholders from '../contexts/Placeholders';
 import { TalkyButton } from '../styles/button';
 import mq from '../styles/media-queries';
 import { colorToString } from '../utils/colorify';
+
 import { Error, Info } from './Alerts';
-import DeviceDropdown from './DeviceDropdown';
-import DeviceSelector from './DeviceSelector';
-import InputChecker from './InputChecker';
 import MediaPreview from './MediaPreview';
-import ShareControls from './ShareControls';
+import CustomMeter from './VolumeMeter';
+
+import getConfigFromMetaTag from '../utils/metaConfig';
+import { createSoundPlayer } from '../utils/sounds';
+
+const hasTestOutput = getConfigFromMetaTag('sound-test-output');
+const throttledTestOutput = createSoundPlayer('sound-test-output');
 
 const Container = styled.div({
   display: 'grid',
@@ -24,7 +37,6 @@ const Container = styled.div({
   gridRowGap: '10px',
   gridColumnGap: '10px',
   [mq.SMALL_DESKTOP]: {
-    gridTemplateColumns: 'repeat(2, 1fr)',
     gridTemplateAreas: `
       'header header'
       'preview controls'
@@ -41,7 +53,7 @@ const Controls = styled.div`
   padding: 0 10px;
   ${mq.SMALL_DESKTOP} {
     padding: 0;
-    width: 300px;
+    width: 330px;
   }
   select {
     border: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
@@ -63,7 +75,7 @@ const Controls = styled.div`
 
     svg {
       font-size: 20px;
-      vertical-align: middle;
+      vertical-align: bottom;
       margin-right: 5px;
       fill: ${({ theme }) => colorToString(theme.foreground)};
     }
@@ -82,157 +94,453 @@ const PermissionButton = styled(TalkyButton)({
   width: '100%'
 });
 
-const Haircheck: React.SFC = () => (
-  <Container>
-    <Placeholders.Consumer>
-      {({ haircheckHeaderPlaceholder }) => (
-        <Header
-          ref={node => {
-            if (
-              node &&
-              haircheckHeaderPlaceholder &&
-              node.childElementCount === 0
-            ) {
-              const el = haircheckHeaderPlaceholder();
-              if (el) {
-                node.appendChild(el);
-              }
-            }
-          }}
-        />
-      )}
-    </Placeholders.Consumer>
-    <Header />
-    <Preview>
+const Volume = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignContent: 'middle'
+});
+
+const AcceptButtonContainer = styled.div({
+  textAlign: 'center'
+});
+
+const AcceptButton = styled(TalkyButton)`
+  margin-top: 20px;
+  background-color: ${({ theme }) => colorToString(theme.buttonPrimaryBackground)};
+  font-size: 22px;
+  color: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
+  padding: 10px;
+  :hover {
+    background-color: ${({ theme }) => colorToString(theme.buttonPrimaryBackgroundHover)};
+    color: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
+  }
+  :active {
+    background-color: ${({ theme }) => colorToString(theme.buttonPrimaryBackgroundActive)};
+    color: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
+  }
+`;
+
+const TestOutputButton = styled.span`
+  color: ${({ theme }) => colorToString(theme.primaryBackground)};
+  float: right;
+`;
+
+type GetMedia = (
+  additional?: MediaStreamConstraints
+) => Promise<{ audio?: string; video?: string }>;
+
+export interface HaircheckProps {
+  onAccept: () => void;
+}
+export interface HaircheckState {
+  allowInitialAutoCapture: boolean;
+  previewAudioId?: string;
+  previewVideoId?: string;
+  testingOutput: boolean;
+}
+
+function getDeviceForTrack(devices: MediaDeviceInfo[], track: MediaStreamTrack) {
+  let deviceId: string | undefined;
+  const deviceLabel = track.label;
+  const deviceKind = `${track.kind}input`;
+
+  if (track.getSettings) {
+    const settings = track.getSettings();
+    deviceId = settings.deviceId;
+  }
+
+  if (deviceId) {
+    for (const device of devices) {
+      if (device.deviceId === deviceId) {
+        return device;
+      }
+    }
+  }
+  for (const device of devices) {
+    if (deviceLabel === device.label && deviceKind === device.kind) {
+      return device;
+    }
+  }
+}
+
+class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
+  constructor(props: HaircheckProps) {
+    super(props);
+
+    this.state = {
+      allowInitialAutoCapture: true,
+      testingOutput: false
+    };
+  }
+
+  public render() {
+    return (
       <LocalMediaList
         screen={false}
-        render={({ media }) => {
-          const audioStreams = media.filter(m => m.kind === 'audio');
-          const videoStreams = media.filter(m => m.kind === 'video');
-          const latestAudio = audioStreams[audioStreams.length - 1];
-          const latestVideo = videoStreams[videoStreams.length - 1];
+        render={({ media, removeMedia, shareLocalMedia }) => {
+          const previewVideo = media.filter(m => m.id === this.state.previewVideoId)[0];
+          const previewAudio = media.filter(m => m.id === this.state.previewAudioId)[0];
 
-          return <MediaPreview video={latestVideo} audio={latestAudio} />;
-        }}
-      />
-    </Preview>
-    <Controls>
-      <div>
-        <DeviceSelector
-          kind="video"
-          render={({
-            hasDevice,
-            permissionDenied,
-            requestingCapture,
-            requestPermissions,
-            devices,
-            currentMedia,
-            selectMedia
-          }) => {
-            if (hasDevice === false) {
-              return <Error>No cameras detected.</Error>;
-            }
-
-            if (permissionDenied === true) {
-              return <Error>Camera permissions denied.</Error>;
-            }
-
-            if (requestingCapture === true) {
-              return <Info>Requesting cameras...</Info>;
-            }
-
-            if (requestPermissions) {
-              return (
-                <PermissionButton onClick={requestPermissions}>
-                  <VideocamIcon />
-                  <span>Allow camera access</span>
-                </PermissionButton>
-              );
-            }
-
-            return (
-              <label>
-                <VideocamIcon />
-                <span>Camera:</span>
-                <DeviceDropdown
-                  currentMedia={currentMedia!}
-                  devices={devices!}
-                  selectMedia={selectMedia!}
-                />
-              </label>
-            );
-          }}
-        />
-      </div>
-      <div>
-        <DeviceSelector
-          kind="audio"
-          render={({
-            hasDevice,
-            permissionDenied,
-            requestingCapture,
-            requestPermissions,
-            devices,
-            currentMedia,
-            selectMedia
-          }) => {
-            if (hasDevice === false) {
-              return <Error>No microphones detected.</Error>;
-            }
-
-            if (permissionDenied === true) {
-              return <Error>Microphone permissions denied.</Error>;
-            }
-
-            if (requestingCapture === true) {
-              return <Info>Requesting microphones...</Info>;
-            }
-
-            if (requestPermissions) {
-              return (
-                <PermissionButton onClick={requestPermissions}>
-                  <MicIcon />
-                  <span>Allow microphone access</span>
-                </PermissionButton>
-              );
-            }
-
-            return (
-              <>
-                <label>
-                  <MicIcon />
-                  <span>Microphone:</span>
-                  <DeviceDropdown
-                    currentMedia={currentMedia!}
-                    devices={devices!}
-                    selectMedia={selectMedia!}
+          return (
+            <Container>
+              <Placeholders.Consumer>
+                {({ haircheckHeaderPlaceholder }) => (
+                  <Header
+                    ref={node => {
+                      if (node && haircheckHeaderPlaceholder && node.childElementCount === 0) {
+                        const el = haircheckHeaderPlaceholder();
+                        if (el) {
+                          node.appendChild(el);
+                        }
+                      }
+                    }}
                   />
-                </label>
-                <InputChecker
-                  media={currentMedia!}
-                  threshold={7000}
-                  render={({ detected, lost }) => {
-                    if (detected && lost) {
-                      return <Error>Media lost.</Error>;
-                    }
+                )}
+              </Placeholders.Consumer>
+              <Preview>
+                <MediaPreview video={previewVideo} />
+              </Preview>
+              <Controls>
+                <DeviceList
+                  render={({
+                    devices,
+                    hasCamera,
+                    requestingCameraCapture,
+                    cameraPermissionDenied,
+                    hasMicrophone,
+                    requestingMicrophoneCapture,
+                    microphonePermissionDenied,
+                    cameraPermissionGranted,
+                    microphonePermissionGranted,
+                    requestingCapture
+                  }) => {
+                    const audioInputs = devices.filter(d => d.kind === 'audioinput');
+                    const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
+                    const videoInputs = devices.filter(d => d.kind === 'videoinput');
 
-                    if (!detected) {
-                      return (
-                        <Info>No input detected from your microphone.</Info>
-                      );
-                    }
+                    const currentAudioDevice = previewAudio
+                      ? getDeviceForTrack(devices, previewAudio.track)
+                      : undefined;
+                    const currentVideoDevice = previewVideo
+                      ? getDeviceForTrack(devices, previewVideo.track)
+                      : undefined;
 
-                    return null;
+                    return (
+                      <>
+                        {this.initialAutoCapture(
+                          microphonePermissionGranted,
+                          cameraPermissionGranted,
+                          requestingCapture
+                        )}
+                        <div>
+                          <UserControls
+                            render={({ user, setAudioOutputDevice }) => (
+                              <label>
+                                <VolumeUpIcon />
+                                <span>Speaker:</span>
+                                {hasTestOutput && (
+                                  <TestOutputButton
+                                    onClick={async e => {
+                                      e.preventDefault();
+                                      this.setState({ testingOutput: true });
+                                      await throttledTestOutput(user.audioOutputDeviceId);
+                                      this.setState({ testingOutput: false });
+                                      return false;
+                                    }}
+                                  >
+                                    {this.state.testingOutput ? 'Playing...' : 'Test Speaker'}
+                                  </TestOutputButton>
+                                )}
+                                <select
+                                  defaultValue={user.audioOutputDeviceId}
+                                  disabled={!devices.length}
+                                  onChange={e => {
+                                    setAudioOutputDevice(e.target.value);
+                                  }}
+                                >
+                                  {audioOutputs.length &&
+                                    audioOutputs.map(device => (
+                                      <option key={device.deviceId} value={device.deviceId}>
+                                        {device.label}
+                                      </option>
+                                    ))}
+                                  {!audioOutputs.length && (
+                                    <option key="" value="">
+                                      Default
+                                    </option>
+                                  )}
+                                </select>
+                              </label>
+                            )}
+                          />
+                        </div>
+                        <div>
+                          <label>
+                            <VideocamIcon />
+                            <span>Camera:</span>
+                            {this.renderInputSelector(
+                              'video',
+                              hasCamera,
+                              cameraPermissionGranted,
+                              cameraPermissionDenied,
+                              requestingCameraCapture!,
+                              videoInputs,
+                              currentVideoDevice,
+                              currentAudioDevice,
+                              previewVideo,
+                              previewAudio,
+                              removeMedia,
+                              'No cameras detected.',
+                              'Camera permissions denied.',
+                              'Requesting cameras...',
+                              'Allow camera access',
+                              'Disable Camera'
+                            )}
+                          </label>
+                        </div>
+                        <div>
+                          <label>
+                            <MicIcon />
+                            <span>Microphone:</span>
+                            {this.renderInputSelector(
+                              'audio',
+                              hasMicrophone,
+                              microphonePermissionGranted,
+                              microphonePermissionDenied,
+                              requestingMicrophoneCapture!,
+                              audioInputs,
+                              currentAudioDevice,
+                              currentVideoDevice,
+                              previewAudio,
+                              previewVideo,
+                              removeMedia,
+                              'No microphones detected.',
+                              'Microphone permissions denied.',
+                              'Requesting microphones...',
+                              'Allow microphone access',
+                              'Disable Microphone'
+                            )}
+                          </label>
+                          {previewAudio ? (
+                            <VolumeMeter
+                              media={previewAudio}
+                              noInputTimeout={7000}
+                              render={({ noInput, volume, speaking }) => (
+                                <Volume>
+                                  <CustomMeter
+                                    buckets={16}
+                                    volume={-volume}
+                                    speaking={speaking}
+                                    loaded={!!previewAudio.inputDetected}
+                                    noInput={noInput}
+                                    requesting={!!requestingMicrophoneCapture}
+                                  />
+                                  {previewAudio.inputDetected && noInput && (
+                                    <Error>Media lost.</Error>
+                                  )}
+                                  {!previewAudio.inputDetected && noInput && (
+                                    <Info>No input detected from your microphone.</Info>
+                                  )}
+                                </Volume>
+                              )}
+                            />
+                          ) : (
+                            <Volume>
+                              <CustomMeter
+                                buckets={16}
+                                volume={0}
+                                speaking={false}
+                                loaded={true}
+                                noInput={false}
+                                requesting={!!requestingMicrophoneCapture}
+                              />
+                            </Volume>
+                          )}
+                        </div>
+                      </>
+                    );
                   }}
                 />
-              </>
+                <AcceptButtonContainer>
+                  <AcceptButton
+                    onClick={() => {
+                      if (previewAudio) {
+                        shareLocalMedia(previewAudio.id);
+                      }
+                      if (previewVideo) {
+                        shareLocalMedia(previewVideo.id);
+                      }
+                      this.props.onAccept();
+                    }}
+                  >
+                    Join call
+                  </AcceptButton>
+                </AcceptButtonContainer>
+              </Controls>
+            </Container>
+          );
+        }}
+      />
+    );
+  }
+
+  private initialAutoCapture(
+    microphonePermissionGranted: boolean,
+    cameraPermissionGranted: boolean,
+    requestingCapture?: boolean
+  ) {
+    const auto =
+      this.state.allowInitialAutoCapture &&
+      (microphonePermissionGranted || cameraPermissionGranted) &&
+      !requestingCapture &&
+      !this.state.previewAudioId &&
+      !this.state.previewVideoId;
+    if (!auto) {
+      return null;
+    }
+
+    setTimeout(() => {
+      this.setState({
+        allowInitialAutoCapture: false
+      });
+    }, 0);
+
+    return (
+      <RequestUserMedia
+        share={false}
+        auto={auto}
+        audio={microphonePermissionGranted}
+        video={cameraPermissionGranted}
+        replaceAudio={this.state.previewAudioId}
+        replaceVideo={this.state.previewVideoId}
+        onError={() => {
+          this.setState({
+            allowInitialAutoCapture: false
+          });
+        }}
+        onSuccess={ids => {
+          this.setState({
+            allowInitialAutoCapture: false,
+            previewAudioId: ids && ids.audio,
+            previewVideoId: ids && ids.video
+          });
+        }}
+        render={() => null}
+      />
+    );
+  }
+
+  private renderInputSelector(
+    kind: 'audio' | 'video',
+    hasDevice: boolean,
+    permissionGranted: boolean,
+    permissionDenied: boolean,
+    requestingCapture: boolean,
+    devices: MediaDeviceInfo[],
+    currentDevice: MediaDeviceInfo | undefined,
+    currentOtherDevice: MediaDeviceInfo | undefined,
+    preview: Media,
+    otherPreview: Media,
+    removeMedia: (id: string) => void,
+    noDevicesLabel: string,
+    noPermissionLabel: string,
+    capturingLabel: string,
+    requestPermissionLabel: string,
+    disableLabel: string
+  ) {
+    if (hasDevice === false) {
+      return <Error>{noDevicesLabel}</Error>;
+    }
+    if (permissionDenied) {
+      return <Error>{noPermissionLabel}</Error>;
+    }
+    if (requestingCapture) {
+      return <Info>{capturingLabel}</Info>;
+    }
+
+    const constraints: MediaTrackConstraints = {
+      [kind]: true,
+      [kind === 'audio' ? 'video' : 'audio']: currentOtherDevice
+        ? {
+            deviceId: { exact: currentOtherDevice.deviceId }
+          }
+        : !!otherPreview
+    };
+
+    return (
+      <RequestUserMedia
+        share={false}
+        {...constraints}
+        replaceAudio={this.state.previewAudioId}
+        replaceVideo={this.state.previewVideoId}
+        render={getMedia => {
+          if (!preview && !permissionGranted) {
+            return (
+              <PermissionButton
+                onClick={() => {
+                  this.runGetMedia(getMedia);
+                }}
+              >
+                <span>{requestPermissionLabel}</span>
+              </PermissionButton>
             );
-          }}
-        />
-      </div>
-      <ShareControls />
-    </Controls>
-  </Container>
-);
+          } else {
+            return (
+              <select
+                value={currentDevice ? currentDevice.deviceId : 'disable'}
+                onChange={e => {
+                  const deviceId = e.target.value;
+                  if (!deviceId) {
+                    return;
+                  }
+
+                  this.setState({ allowInitialAutoCapture: false });
+                  if (deviceId !== 'disable') {
+                    this.runGetMedia(getMedia, {
+                      [kind]: {
+                        deviceId: { exact: deviceId }
+                      }
+                    });
+                  } else {
+                    if (kind === 'audio') {
+                      removeMedia(this.state.previewAudioId!);
+                      this.setState({ previewAudioId: undefined });
+                    } else {
+                      removeMedia(this.state.previewVideoId!);
+                      this.setState({ previewVideoId: undefined });
+                    }
+                  }
+                  if (!e.target.value) {
+                    return;
+                  }
+                }}
+              >
+                {devices.map(device => (
+                  <option key={device.deviceId} value={device.deviceId}>
+                    {device.label}
+                  </option>
+                ))}
+                <option key="disabled" value="disable">
+                  {disableLabel}
+                </option>
+              </select>
+            );
+          }
+        }}
+      />
+    );
+  }
+
+  private runGetMedia(getMedia: GetMedia, additional?: MediaStreamConstraints): void {
+    this.setState({ allowInitialAutoCapture: false });
+    getMedia(additional).then(ids => {
+      this.setState({
+        previewAudioId: ids && ids.audio,
+        previewVideoId: ids && ids.video
+      });
+    });
+  }
+}
 
 export default Haircheck;
