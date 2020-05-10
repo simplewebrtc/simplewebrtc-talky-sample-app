@@ -1,12 +1,15 @@
-import { throttle } from 'lodash-es';
+import { throttle } from "lodash-es";
 
-import getConfigFromMetaTag from '../utils/metaConfig';
+import getConfigFromMetaTag from "../utils/metaConfig";
 
-export function createSoundPlayer(name: string, debouceInterval: number = 1000) {
+export function createSoundPlayer(
+  name: string,
+  debouceInterval: number = 1000
+) {
   const url = getConfigFromMetaTag(name);
   const sound = url ? new Audio(url) : null;
 
-  const play = (deviceId: string = 'default') => {
+  const play = (deviceId: string = "default") => {
     return new Promise(resolve => {
       if (!sound) {
         return resolve();

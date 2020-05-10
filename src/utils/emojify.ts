@@ -1,10 +1,10 @@
-import emojiShortcodes, { Shortcode } from './emojiShortcodes';
+import emojiShortcodes, { Shortcode } from "./emojiShortcodes";
 
 const aliases: { [key: string]: Shortcode } = {
-  ':thumbsup:': ':thumbs-up:',
-  ':+1:': ':thumbs-up:',
-  ':wink:': ':winking-face:',
-  ':bath:': ':bathtub:'
+  ":thumbsup:": ":thumbs-up:",
+  ":+1:": ":thumbs-up:",
+  ":wink:": ":winking-face:",
+  ":bath:": ":bathtub:"
 };
 
 export default function emojify(text: string): string {

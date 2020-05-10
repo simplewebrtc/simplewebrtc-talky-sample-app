@@ -1,5 +1,5 @@
-import React from 'react';
-import { PlaceholderGenerator } from '../types';
+import React from "react";
+import { PlaceholderGenerator } from "../types";
 
 interface Context {
   gridPlaceholder: PlaceholderGenerator;

@@ -70,7 +70,7 @@ export function colorFromHex(s: string): Color {
   const [r, g, b, a] = s
     .replace(
       /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-      (m, _r, _g, _b) => '#' + _r + _r + _g + _g + _b + _b
+      (m, _r, _g, _b) => "#" + _r + _r + _g + _g + _b + _b
     )
     .substring(1)
     .match(/.{2}/g)!

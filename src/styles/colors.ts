@@ -1,4 +1,4 @@
-import { colorFromHsl } from '../utils/colorify';
+import { colorFromHsl } from "../utils/colorify";
 
 const colors = {
   blueSaturatedDarker: colorFromHsl(195, 100 / 100, 5 / 100),
