@@ -19,7 +19,7 @@ import { colorToString } from '../utils/colorify';
 
 import { Error, Info } from './Alerts';
 import MediaPreview from './MediaPreview';
-import CustomMeter from './VolumeMeter';
+import { default as Meter } from './VolumeMeter';
 
 import getConfigFromMetaTag from '../utils/metaConfig';
 import { createSoundPlayer } from '../utils/sounds';
@@ -119,6 +119,10 @@ const AcceptButton = styled(TalkyButton)`
     background-color: ${({ theme }) => colorToString(theme.buttonPrimaryBackgroundActive)};
     color: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
   }
+  [disabled],
+  :disabled {
+    background-color: ${({ theme }) => colorToString(theme.buttonSecondaryBackground)};
+  }
 `;
 
 const TestOutputButton = styled.span`
@@ -138,6 +142,7 @@ export interface HaircheckState {
   previewAudioId?: string;
   previewVideoId?: string;
   testingOutput: boolean;
+  showAccept?: boolean;
 }
 
 function getDeviceForTrack(devices: MediaDeviceInfo[], track: MediaStreamTrack) {
@@ -170,8 +175,17 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
 
     this.state = {
       allowInitialAutoCapture: true,
-      testingOutput: false
+      testingOutput: false,
+      showAccept: false
     };
+  }
+
+  public componentDidMount() {
+    setTimeout(() => {
+      this.setState({
+        showAccept: true
+      });
+    }, 1000);
   }
 
   public render() {
@@ -328,7 +342,7 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
                               noInputTimeout={7000}
                               render={({ noInput, volume, speaking }) => (
                                 <Volume>
-                                  <CustomMeter
+                                  <Meter
                                     buckets={16}
                                     volume={-volume}
                                     speaking={speaking}
@@ -347,7 +361,7 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
                             />
                           ) : (
                             <Volume>
-                              <CustomMeter
+                              <Meter
                                 buckets={16}
                                 volume={0}
                                 speaking={false}
@@ -358,25 +372,28 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
                             </Volume>
                           )}
                         </div>
+                        <AcceptButtonContainer>
+                          <AcceptButton
+                            disabled={!this.state.showAccept || requestingCapture}
+                            onClick={() => {
+                              if (previewAudio) {
+                                shareLocalMedia(previewAudio.id);
+                              }
+                              if (previewVideo) {
+                                shareLocalMedia(previewVideo.id);
+                              }
+                              this.props.onAccept();
+                            }}
+                          >
+                            {!this.state.showAccept || requestingCapture
+                              ? 'Getting Ready...'
+                              : 'Join Call'}
+                          </AcceptButton>
+                        </AcceptButtonContainer>
                       </>
                     );
                   }}
                 />
-                <AcceptButtonContainer>
-                  <AcceptButton
-                    onClick={() => {
-                      if (previewAudio) {
-                        shareLocalMedia(previewAudio.id);
-                      }
-                      if (previewVideo) {
-                        shareLocalMedia(previewVideo.id);
-                      }
-                      this.props.onAccept();
-                    }}
-                  >
-                    Join call
-                  </AcceptButton>
-                </AcceptButtonContainer>
               </Controls>
             </Container>
           );

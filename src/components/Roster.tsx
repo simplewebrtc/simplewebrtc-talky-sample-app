@@ -33,20 +33,12 @@ const PeerListItem: React.SFC<PeerListItemProps> = ({ peer }) => {
         peer={peer}
         render={({ isMuted, mute, unmute }) => (
           <Button onClick={() => (isMuted ? unmute() : mute())}>
-            {isMuted ? (
-              <VolumeOffIcon fill="#505658" />
-            ) : (
-              <VolumeUpIcon fill="#505658" />
-            )}
+            {isMuted ? <VolumeOffIcon fill="#505658" /> : <VolumeUpIcon fill="#505658" />}
           </Button>
         )}
       />
       <Button onClick={() => togglePeer(peer.id)}>
-        {isHidden ? (
-          <VisibilityOffIcon fill="#505658" />
-        ) : (
-          <VisibilityIcon fill="#505658" />
-        )}
+        {isHidden ? <VisibilityOffIcon fill="#505658" /> : <VisibilityIcon fill="#505658" />}
       </Button>
       {peer.displayName || 'Anonymous'}
     </li>
@@ -72,11 +64,7 @@ const Roster: React.SFC<Props> = ({ roomAddress }) => (
           {({ emptyRosterPlaceholder }) => (
             <div
               ref={node => {
-                if (
-                  node &&
-                  emptyRosterPlaceholder &&
-                  node.childElementCount === 0
-                ) {
+                if (node && emptyRosterPlaceholder && node.childElementCount === 0) {
                   const el = emptyRosterPlaceholder();
                   if (el) {
                     node.appendChild(el);

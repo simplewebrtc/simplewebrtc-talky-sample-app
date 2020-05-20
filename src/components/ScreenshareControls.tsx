@@ -21,6 +21,7 @@ const EmptySpacer = styled.span({
 // required by the user's browser.
 const ScreenshareControls: React.SFC = () => (
   <RequestDisplayMedia
+    audio
     render={(getDisplayMedia, sharing) => {
       if (!sharing.available) {
         return <EmptySpacer />;

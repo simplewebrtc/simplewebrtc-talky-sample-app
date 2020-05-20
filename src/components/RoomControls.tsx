@@ -1,6 +1,7 @@
 import CallEndIcon from 'material-icons-svg/components/baseline/CallEnd';
 import LockIcon from 'material-icons-svg/components/baseline/Lock';
 import LockOpenIcon from 'material-icons-svg/components/baseline/LockOpen';
+
 import React, { CSSProperties } from 'react';
 import Modal from 'react-modal';
 import styled, { css } from 'styled-components';
@@ -18,11 +19,17 @@ const LeaveButton = styled(TalkyButton)({
   width: '100%'
 });
 
+const LockedLabel = styled.div({
+  gridArea: 'pin',
+  textAlign: 'center'
+});
+
 const Container = styled.div({
   display: 'grid',
   gridTemplateAreas: `
+    'pin pin'
     'invite invite'
-    'lock leave'
+    'leave lock'
   `,
   gridColumnGap: '10px',
   gridRowGap: '10px',
@@ -42,9 +49,8 @@ const StyledModal = styled(Modal)`
   border-radius: 4px;
   outline: none;
   padding: 35px 20px 20px;
-  max-width: 600px;
+  max-width: 500px;
   margin: 0px auto;
-  height: 260px;
 `;
 
 const modalOverlayStyle: CSSProperties = {
@@ -54,7 +60,8 @@ const modalOverlayStyle: CSSProperties = {
   left: '0',
   right: '0',
   bottom: '0',
-  backgroundColor: 'rgba(255, 255, 255, 0.75)'
+  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  boxShadow: 'inset 0 0 100px rgba(0,0,0,.7)'
 };
 
 interface Props {
@@ -63,6 +70,8 @@ interface Props {
   showPasswordModal: () => void;
   hidePasswordModal: () => void;
   setPassword: (s: string) => void;
+  roomId: string;
+  currentPassword?: string;
 }
 
 const RoomControls: React.SFC<Props> = ({
@@ -70,9 +79,17 @@ const RoomControls: React.SFC<Props> = ({
   passwordRequired,
   showPasswordModal,
   hidePasswordModal,
-  setPassword
+  setPassword,
+  roomId,
+  currentPassword
 }) => {
   const leaveUrl = getConfigFromMetaTag('leave-button-url');
+  let parsedLeaveUrl;
+  if (leaveUrl) {
+    parsedLeaveUrl = new URL(leaveUrl);
+    parsedLeaveUrl.searchParams.set('room', roomId);
+  }
+
   return (
     <Container>
       <InviteButton />
@@ -82,7 +99,10 @@ const RoomControls: React.SFC<Props> = ({
             ? () => {
                 setPassword('');
               }
-            : showPasswordModal
+            : () => {
+                const code = `${Math.floor(Math.random() * 10000)}`;
+                setPassword(code);
+              }
         }
       >
         {passwordRequired ? (
@@ -97,7 +117,11 @@ const RoomControls: React.SFC<Props> = ({
           </>
         )}
       </LockButton>
-      <a style={{ gridArea: 'leave' }} href={leaveUrl ? leaveUrl : '/'}>
+      <LockedLabel>
+        {currentPassword && <span>Room Locked: {currentPassword}</span>}
+        {!currentPassword && <span>Anyone may join</span>}
+      </LockedLabel>
+      <a style={{ gridArea: 'leave' }} href={parsedLeaveUrl ? parsedLeaveUrl.toString() : '/'}>
         <LeaveButton>
           <CallEndIcon fill="#505658" />
           <span>Leave</span>

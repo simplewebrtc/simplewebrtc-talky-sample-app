@@ -17,17 +17,21 @@ import Linkify from './Linkify';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 50vh;
-  max-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 50);
+  max-height: calc(var(--vh, 1vh) * 100);
   border-top: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
   z-index: 300;
   background-color: ${({ theme }) => colorToString(theme.background)};
   overflow: hidden;
+
+  & .msg:last-of-type {
+    border-bottom: none;
+  }
+
   ${mq.SMALL_DESKTOP} {
     width: 200px;
     border-top: none;
-    border-left: ${({ theme }) =>
-      css`1px solid ${colorToString(theme.border)}`};
+    border-left: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
   }
 `;
 
@@ -39,18 +43,15 @@ const Container = styled.div`
 // `;
 
 const Header = styled.button`
+  text-align: left;
   border: none;
   border-top: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
-  border-bottom: ${({ theme }) =>
-    css`1px solid ${colorToString(theme.border)}`};
+  border-bottom: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
   display: block;
   padding: 10px;
   font-size: 18px;
   outline: none;
   background-color: ${({ theme }) => colorToString(theme.background)};
-  :active {
-    border-style: solid;
-  }
   svg {
     fill: ${({ theme }) => colorToString(theme.foreground)};
     vertical-align: middle;
@@ -67,6 +68,11 @@ const StyledStayDownContainer = styled(StayDownContainer)({
 });
 
 const InputContainer = styled.div`
+  padding: 5px;
+  border: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
+  border-radius: 5px;
+  margin: 5px;
+
   textarea {
     width: 100%;
     height: 90px;
@@ -74,12 +80,11 @@ const InputContainer = styled.div`
     padding: 8px;
     margin: 0;
     outline: none;
-    border: none;
-    border-top: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
     display: block;
     font-size: 14px;
     font-family: inherit;
     resize: none;
+    border: none;
   }
   input {
     margin-right: 5px;
@@ -87,11 +92,24 @@ const InputContainer = styled.div`
   label {
     font-size: 12px;
   }
+
+  &.chat-disabled {
+    background: ${({ theme }) =>
+      css`
+        ${colorToString(theme.border)}
+      `};
+
+    textarea {
+      background: ${({ theme }) =>
+        css`
+          ${colorToString(theme.border)}
+        `};
+    }
+  }
 `;
 
 const Message = styled.div`
-  border-bottom: ${({ theme }) =>
-    css`1px solid ${colorToString(theme.border)}`};
+  border-bottom: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
   position: relative;
   padding: 10px;
   font-size: 14px;
@@ -121,14 +139,9 @@ interface ChatMessageGroupProps {
   peer: Peer | undefined;
 }
 
-const ChatMessageGroup: React.SFC<ChatMessageGroupProps> = ({
-  chats,
-  peer
-}) => (
-  <Message key={chats[0].id}>
-    <MessageAuthor>
-      {chats[0].displayName ? chats[0].displayName : 'Anonymous'}
-    </MessageAuthor>
+const ChatMessageGroup: React.SFC<ChatMessageGroupProps> = ({ chats, peer }) => (
+  <Message className="msg" key={chats[0].id}>
+    <MessageAuthor>{chats[0].displayName ? chats[0].displayName : 'Anonymous'}</MessageAuthor>
     <MessageTime>{chats[0].time.toLocaleTimeString()}</MessageTime>
     {chats.map(message => (
       <MessageText key={message.id}>
@@ -139,10 +152,13 @@ const ChatMessageGroup: React.SFC<ChatMessageGroupProps> = ({
 );
 
 const ComposersContainer = styled.div({
-  minHeight: '30px'
+  minHeight: '20px',
+  fontSize: '12px',
+  textAlign: 'center'
 });
 
 interface Props {
+  disabled?: boolean;
   roomAddress: string;
   sendRtt: boolean;
   toggleRtt: () => void;
@@ -157,7 +173,8 @@ const ChatContainer: React.SFC<Props> = ({
   roomAddress,
   sendRtt,
   toggleRtt,
-  toggleChat
+  toggleChat,
+  disabled
 }) => (
   <Container>
     <Header onClick={toggleChat}>
@@ -172,20 +189,22 @@ const ChatContainer: React.SFC<Props> = ({
         )}
       />
     </StyledStayDownContainer>
-    <InputContainer>
+    <InputContainer className={disabled ? 'chat-disabled' : ''}>
       <ChatInput
+        autoFocus
+        disabled={disabled}
         room={roomAddress}
         rtt={sendRtt}
-        placeholder="Send a message..."
+        placeholder={disabled ? 'Waiting to join room...' : 'Send a message...'}
       />
       <label style={{ display: 'block' }}>
         <input type="checkbox" checked={sendRtt} onChange={toggleRtt} />
         Send as I type
       </label>
-      <ComposersContainer>
-        <ChatComposers room={roomAddress} />
-      </ComposersContainer>
     </InputContainer>
+    <ComposersContainer>
+      <ChatComposers room={roomAddress} />
+    </ComposersContainer>
   </Container>
 );
 

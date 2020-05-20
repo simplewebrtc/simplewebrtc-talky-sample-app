@@ -95,10 +95,7 @@ const LocalMediaControls: React.SFC<LocalMediaControlsProps> = ({
     >
       {isMuted ? <MicOffIcon /> : <MicIcon />}
     </MuteButton>
-    <PauseButton
-      isOff={isPaused}
-      onClick={() => (isPaused ? resumeVideo() : pauseVideo())}
-    >
+    <PauseButton isOff={isPaused} onClick={() => (isPaused ? resumeVideo() : pauseVideo())}>
       {isPaused ? <VideocamOffIcon /> : <VideocamIcon />}
     </PauseButton>
     <ScreenshareControls />

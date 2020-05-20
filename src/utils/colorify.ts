@@ -9,12 +9,7 @@ export interface Color {
   a: number;
 }
 
-export function colorFromHsla(
-  h: number,
-  s: number,
-  l: number,
-  a: number = 1
-): Color {
+export function colorFromHsla(h: number, s: number, l: number, a: number = 1): Color {
   return { h: h / 360, s, l, a };
 }
 
@@ -22,12 +17,7 @@ export function colorFromHsl(h: number, s: number, l: number): Color {
   return colorFromHsla(h, s, l);
 }
 
-export function colorFromRgba(
-  r: number,
-  g: number,
-  b: number,
-  a: number = 1
-): Color {
+export function colorFromRgba(r: number, g: number, b: number, a: number = 1): Color {
   r /= 255;
   g /= 255;
   b /= 255;
@@ -70,7 +60,7 @@ export function colorFromHex(s: string): Color {
   const [r, g, b, a] = s
     .replace(
       /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-      (m, _r, _g, _b) => "#" + _r + _r + _g + _g + _b + _b
+      (m, _r, _g, _b) => '#' + _r + _r + _g + _g + _b + _b
     )
     .substring(1)
     .match(/.{2}/g)!

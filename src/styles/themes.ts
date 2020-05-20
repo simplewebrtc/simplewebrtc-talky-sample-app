@@ -1,5 +1,5 @@
-import { Color, colorFromHex, darken, lighten } from "../utils/colorify";
-import colors from "./colors";
+import { Color, colorFromHex, darken, lighten } from '../utils/colorify';
+import colors from './colors';
 
 export interface TalkyBaseTheme {
   background: Color;
@@ -44,26 +44,26 @@ export interface TalkyTheme extends TalkyBaseTheme {
 }
 
 const lightBase: TalkyBaseTheme = {
-  background: colorFromHex("#fff"),
-  foreground: colorFromHex("#444"),
-  border: lighten(colorFromHex("#444"), 0.5),
+  background: colorFromHex('#fff'),
+  foreground: colorFromHex('#444'),
+  border: lighten(colorFromHex('#444'), 0.5),
   primaryBackground: colors.blue,
-  primaryForeground: colorFromHex("#fff"),
+  primaryForeground: colorFromHex('#fff'),
   secondaryBackground: colors.grayLighter,
   secondaryForeground: colors.grayDark,
   attentionBackground: colors.pink,
-  attentionForeground: colorFromHex("#fff"),
+  attentionForeground: colorFromHex('#fff'),
   actionBackground: colors.green,
-  actionForeground: colorFromHex("#fff")
+  actionForeground: colorFromHex('#fff')
 };
 
 const darkBase: TalkyBaseTheme = {
   ...lightBase,
-  background: colorFromHex("#121212"),
-  foreground: colorFromHex("#fff"),
-  border: lighten(colorFromHex("#121212"), 0.25),
-  secondaryBackground: colorFromHex("#2a2a2a"),
-  secondaryForeground: colorFromHex("#fff")
+  background: colorFromHex('#121212'),
+  foreground: colorFromHex('#fff'),
+  border: lighten(colorFromHex('#121212'), 0.25),
+  secondaryBackground: colorFromHex('#2a2a2a'),
+  secondaryForeground: colorFromHex('#fff')
 };
 
 function kebabToCamel(s: string): string {
@@ -73,18 +73,15 @@ function kebabToCamel(s: string): string {
 function mergeOverrides(base: TalkyBaseTheme): TalkyBaseTheme {
   const baseTheme: TalkyBaseTheme = { ...base };
   const properties = Array.from(
-    document.head.querySelectorAll("meta[name*=simplewebrtc-theme]")
-  ).reduce(
-    (a, b) => {
-      const name = b.getAttribute("name");
-      const content = b.getAttribute("content");
-      if (name !== null && content !== null) {
-        a[kebabToCamel(name.replace("simplewebrtc-theme-", ""))] = content;
-      }
-      return a;
-    },
-    {} as { [key: string]: string }
-  );
+    document.head.querySelectorAll('meta[name*=simplewebrtc-theme]')
+  ).reduce((a, b) => {
+    const name = b.getAttribute('name');
+    const content = b.getAttribute('content');
+    if (name !== null && content !== null) {
+      a[kebabToCamel(name.replace('simplewebrtc-theme-', ''))] = content;
+    }
+    return a;
+  }, {} as { [key: string]: string });
 
   Object.keys(properties).forEach(k => {
     if (baseTheme.hasOwnProperty(k)) {

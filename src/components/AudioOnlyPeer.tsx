@@ -8,7 +8,8 @@ const Container = styled('div')({
   alignItems: 'center',
   justifyContent: 'center',
   position: 'relative',
-  backgroundColor: '#E9ECEC'
+  backgroundColor: '#E9ECEC',
+  height: '100%'
 });
 
 const IconContainer = styled('div')({

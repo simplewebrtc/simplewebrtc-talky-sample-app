@@ -10,6 +10,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 5px;
+  margin-top: 10px;
   padding: 2px;
   svg {
     margin-right: 5px;

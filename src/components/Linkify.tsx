@@ -29,13 +29,18 @@ function getTextSegments(text: string): DetectedUrls[] {
   let currentIndex = 0;
   matches.forEach(match => {
     if (match.index === 0) {
-      segments.push({ url: match[0] });
+      const url = match[0];
+      segments.push({
+        url,
+        scheme: url.startsWith('http:') || url.startsWith('https:'),
+        slashes: url.startsWith('//')
+      });
     } else if (match.index > 0) {
       const url = match[0];
       segments.push({ text: text.slice(currentIndex, match.index) });
       segments.push({
         url,
-        scheme: url.startsWith('http:') || url.startsWith('http:'),
+        scheme: url.startsWith('http:') || url.startsWith('https:'),
         slashes: url.startsWith('//')
       });
       currentIndex = match.index + match[0].length;

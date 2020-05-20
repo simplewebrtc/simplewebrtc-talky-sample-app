@@ -18,8 +18,7 @@ const Container = styled.div`
   }
   ${mq.SMALL_DESKTOP} {
     width: 220px;
-    border-right: ${({ theme }) =>
-      css`1px solid ${colorToString(theme.border)}`};
+    border-right: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
   }
 `;
 
@@ -32,6 +31,7 @@ interface Props {
   setPassword: (s: string) => void;
   passwordRequired?: boolean;
   roomId: string;
+  currentPassword?: string;
 }
 
 interface State {
@@ -56,7 +56,8 @@ export default class Sidebar extends Component<Props, State> {
       pttMode,
       togglePttMode,
       setPassword,
-      roomId
+      roomId,
+      currentPassword
     } = this.props;
 
     return (
@@ -67,6 +68,8 @@ export default class Sidebar extends Component<Props, State> {
           showPasswordModal={this.showPasswordModal}
           hidePasswordModal={this.hidePasswordModal}
           setPassword={setPassword}
+          roomId={roomId}
+          currentPassword={currentPassword}
         />
         <SidebarUserControls
           activeSpeakerView={activeSpeakerView}

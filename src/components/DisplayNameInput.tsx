@@ -21,18 +21,13 @@ function getLocalDisplayName() {
     return null;
   }
   if (name.startsWith('"') && name.endsWith('"')) {
-    return name.substring(1, name.length - 1); 
+    return name.substring(1, name.length - 1);
   }
   return name;
 }
 
-const DisplayNameInput: React.SFC<Props> = ({
-  displayName,
-  setDisplayName
-}) => {
-  const [typedName, setTypedName] = useState(
-    displayName === 'Anonymous' ? '' : displayName
-  );
+const DisplayNameInput: React.SFC<Props> = ({ displayName, setDisplayName }) => {
+  const [typedName, setTypedName] = useState(displayName === 'Anonymous' ? '' : displayName);
 
   const persisDisplayName = (name: string) => {
     setDisplayName(name);

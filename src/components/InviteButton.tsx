@@ -6,16 +6,13 @@ import { colorToString } from '../utils/colorify';
 
 const Button = styled(TalkyButton)`
   grid-area: invite;
-  background-color: ${({ theme }) =>
-    colorToString(theme.buttonPrimaryBackground)};
+  background-color: ${({ theme }) => colorToString(theme.buttonPrimaryBackground)};
   color: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
   :hover {
-    background-color: ${({ theme }) =>
-      colorToString(theme.buttonPrimaryBackgroundHover)};
+    background-color: ${({ theme }) => colorToString(theme.buttonPrimaryBackgroundHover)};
   }
   :active {
-    background-color: ${({ theme }) =>
-      colorToString(theme.buttonPrimaryBackgroundActive)};
+    background-color: ${({ theme }) => colorToString(theme.buttonPrimaryBackgroundActive)};
   }
   svg {
     fill: ${({ theme }) => colorToString(theme.buttonPrimaryText)};
@@ -56,8 +53,7 @@ export default class InviteButton extends Component<{}, State> {
         el.style.position = 'absolute';
         el.style.left = '-9999px';
         // Move element to the same position vertically
-        const yPosition =
-          window.pageYOffset || document.documentElement.scrollTop;
+        const yPosition = window.pageYOffset || document.documentElement.scrollTop;
         el.style.top = `${yPosition}px`;
         document.body.appendChild(el);
         el.setAttribute('readonly', '');

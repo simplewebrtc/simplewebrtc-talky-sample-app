@@ -28,15 +28,12 @@ const Container = styled.div`
 
 const SubmitButton = styled(TalkyButton)`
   color: ${({ theme }) => colorToString(theme.buttonActionText)};
-  background-color: ${({ theme }) =>
-    colorToString(theme.buttonActionBackground)};
+  background-color: ${({ theme }) => colorToString(theme.buttonActionBackground)};
   :hover {
-    background-color: ${({ theme }) =>
-      colorToString(theme.buttonActionBackgroundHover)};
+    background-color: ${({ theme }) => colorToString(theme.buttonActionBackgroundHover)};
   }
   :active {
-    background-color: ${({ theme }) =>
-      colorToString(theme.buttonActionBackgroundActive)};
+    background-color: ${({ theme }) => colorToString(theme.buttonActionBackgroundActive)};
   }
 `;
 
@@ -64,30 +61,36 @@ export default class PasswordEntry extends Component<Props, State> {
   public render() {
     return (
       <Container>
-        <h2>
+        <h1>
           {this.props.setting
-            ? 'Set a key for this room'
+            ? 'Set a password for this room'
             : 'A password is required to enter this room'}
-        </h2>
+        </h1>
         {this.props.passwordIsIncorrect && (
           <p>The password you entered is incorrect. Please try again.</p>
         )}
         <input
-          type="password"
+          autoFocus
+          type="text"
           placeholder="Your shared key"
           value={this.state.password}
           onChange={this.onChange}
+          onKeyUp={this.onKeyPress}
         />
         <CancelButton onClick={this.props.onSubmit}>Cancel</CancelButton>
-        <SubmitButton onClick={this.onClick}>
-          {this.props.setting ? 'Lock' : 'Join'}
-        </SubmitButton>
+        <SubmitButton onClick={this.onClick}>{this.props.setting ? 'Lock' : 'Join'}</SubmitButton>
       </Container>
     );
   }
 
   private onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ password: e.target.value });
+  };
+
+  private onKeyPress = (e: React.KeyboardEvent) => {
+    if (e.keyCode === 13) {
+      this.onClick();
+    }
   };
 
   private onClick = () => {

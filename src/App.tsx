@@ -7,15 +7,14 @@ import { PlaceholderGenerator } from './types';
 import { colorToString, darken } from './utils/colorify';
 
 const Container = styled.div`
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   width: 100vw;
   background-color: ${({ theme }) => colorToString(theme.background)};
   color: ${({ theme }) => colorToString(theme.foreground)};
   a {
     color: ${({ theme }) => colorToString(theme.primaryBackground)};
     :hover {
-      color: ${({ theme }) =>
-        colorToString(darken(theme.primaryBackground, 0.1))};
+      color: ${({ theme }) => colorToString(darken(theme.primaryBackground, 0.1))};
     }
   }
 `;
@@ -62,6 +61,7 @@ interface Props {
   configUrl: string;
   userData?: string;
   roomName?: string;
+  initialPassword?: string;
   gridPlaceholder: PlaceholderGenerator;
   haircheckHeaderPlaceholder: PlaceholderGenerator;
   emptyRosterPlaceholder: PlaceholderGenerator;
@@ -74,6 +74,7 @@ class App extends Component<Props> {
       roomName,
       configUrl,
       userData,
+      initialPassword,
       gridPlaceholder,
       haircheckHeaderPlaceholder,
       emptyRosterPlaceholder,
@@ -97,15 +98,12 @@ class App extends Component<Props> {
                   name={roomName}
                   configUrl={configUrl}
                   userData={userData}
+                  initialPassword={initialPassword}
                 />
               ) : (
                 <div
                   ref={node => {
-                    if (
-                      node &&
-                      homepagePlaceholder &&
-                      node.childElementCount === 0
-                    ) {
+                    if (node && homepagePlaceholder && node.childElementCount === 0) {
                       const el = homepagePlaceholder();
                       if (el) {
                         node.appendChild(el);

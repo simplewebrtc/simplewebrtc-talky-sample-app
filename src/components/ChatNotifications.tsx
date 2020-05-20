@@ -7,10 +7,7 @@ interface Props {
   onReceive: () => void;
 }
 
-function messageCount(
-  groups: ChatGroup[],
-  direction: 'incoming' | 'outgoing'
-): number {
+function messageCount(groups: ChatGroup[], direction: 'incoming' | 'outgoing'): number {
   return groups
     .filter(g => g.direction === direction)
     .reduce((accumulator, currentValue) => {

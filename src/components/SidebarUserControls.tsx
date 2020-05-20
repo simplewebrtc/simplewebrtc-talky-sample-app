@@ -1,10 +1,4 @@
-import {
-  LocalMediaList,
-  Media,
-  MediaControls,
-  UserControls,
-  Video
-} from '@andyet/simplewebrtc';
+import { LocalMediaList, Media, MediaControls, UserControls, Video } from '@andyet/simplewebrtc';
 import React from 'react';
 import styled from 'styled-components';
 import DisplayNameInput from './DisplayNameInput';
@@ -131,10 +125,7 @@ const SidebarUserControls: React.SFC<Props> = ({
     }) => (
       <div>
         <LocalVideo>
-          <DisplayNameInput
-            displayName={user.displayName}
-            setDisplayName={setDisplayName}
-          />
+          <DisplayNameInput displayName={user.displayName} setDisplayName={setDisplayName} />
           <LocalMediaList
             shared={true}
             render={({ media }) => {
@@ -144,7 +135,7 @@ const SidebarUserControls: React.SFC<Props> = ({
                   <>
                     {videos.map(m =>
                       m.screenCapture ? (
-                        <LocalScreen screenshareMedia={m} />
+                        <LocalScreen key={m.id} screenshareMedia={m} />
                       ) : (
                         <Video key={m.id} media={m} />
                       )
@@ -162,8 +153,8 @@ const SidebarUserControls: React.SFC<Props> = ({
           unmute={unmute}
           mute={mute}
           isPaused={isPaused}
-          resumeVideo={resumeVideo}
-          pauseVideo={pauseVideo}
+          resumeVideo={() => resumeVideo({ screenCapture: false })}
+          pauseVideo={() => pauseVideo({ screenCapture: false })}
           isSpeaking={isSpeaking}
           isSpeakingWhileMuted={isSpeakingWhileMuted}
         />
@@ -185,11 +176,7 @@ const SidebarUserControls: React.SFC<Props> = ({
             */}
           <div>
             <ToggleContainer>
-              <input
-                type="checkbox"
-                checked={pttMode}
-                onChange={togglePttMode}
-              />
+              <input type="checkbox" checked={pttMode} onChange={togglePttMode} />
               Walkie Talkie Mode
               <Tooltip text="Use spacebar to toggle your microphone on/off" />
             </ToggleContainer>

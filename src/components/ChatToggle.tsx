@@ -20,7 +20,7 @@ const Container = styled.button<ContainerProps>`
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 16.6667%;
+  width: 200px;
   text-align: left;
   z-index: 300;
   font-size: 18px;
@@ -29,22 +29,16 @@ const Container = styled.button<ContainerProps>`
       ? css`1px ${colorToString(theme.buttonActionBackground)} solid`
       : css`1px solid ${colorToString(theme.border)}`};
   background: ${({ newMessage, theme }) =>
-    newMessage
-      ? colorToString(theme.buttonActionBackground)
-      : colorToString(theme.background)};
+    newMessage ? colorToString(theme.buttonActionBackground) : colorToString(theme.background)};
   color: ${({ newMessage, theme }) =>
-    newMessage
-      ? colorToString(theme.buttonActionText)
-      : colorToString(theme.foreground)};
+    newMessage ? colorToString(theme.buttonActionText) : colorToString(theme.foreground)};
   padding: 5px 15px;
   :focus {
     outline: 0;
   }
   svg {
     fill: ${({ newMessage, theme }) =>
-      newMessage
-        ? colorToString(theme.buttonActionText)
-        : colorToString(theme.foreground)};
+      newMessage ? colorToString(theme.buttonActionText) : colorToString(theme.foreground)};
     font-size: 24px;
     vertical-align: middle;
     :last-of-type {
@@ -64,11 +58,7 @@ const ChatToggle: React.SFC<Props> = ({ roomAddress, onClick }) => {
           <ChatComposers
             room={roomAddress}
             render={({ composers }) => (
-              <Container
-                onClick={onClick}
-                isTyping={composers.length > 0}
-                newMessage={newMessage}
-              >
+              <Container onClick={onClick} isTyping={composers.length > 0} newMessage={newMessage}>
                 <KeyboardArrowUpIcon />
                 <span>Chat</span>
                 <MoreHorizIcon />

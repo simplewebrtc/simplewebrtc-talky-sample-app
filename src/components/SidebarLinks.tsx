@@ -17,8 +17,7 @@ const Container = styled.div`
     font-size: 14px;
     text-decoration: none;
     :hover {
-      color: ${({ theme }) =>
-        colorToString(lighten(theme.foreground, 0.05))} !important;
+      color: ${({ theme }) => colorToString(lighten(theme.foreground, 0.05))} !important;
     }
   }
 `;
@@ -39,11 +38,7 @@ const SidebarLinks: React.SFC<Props> = ({ roomId }) => {
           Help
         </a>{' '}
         ∙{' '}
-        <a
-          href={parsedFeedbackUrl.toString()}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href={parsedFeedbackUrl.toString()} target="_blank" rel="noopener noreferrer">
           Feedback
         </a>
       </Container>

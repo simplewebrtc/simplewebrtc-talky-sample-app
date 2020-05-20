@@ -2,12 +2,7 @@ import { Actions, reducer, Selectors } from '@andyet/simplewebrtc';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import {
-  applyMiddleware,
-  combineReducers,
-  compose as ReduxCompose,
-  createStore
-} from 'redux';
+import { applyMiddleware, combineReducers, compose as ReduxCompose, createStore } from 'redux';
 import Thunk from 'redux-thunk';
 import App from './App';
 import { PlaceholderGenerator } from './types';
@@ -20,8 +15,7 @@ const CONFIG_URL = configUrl ? configUrl : '';
 const userData = getConfigFromMetaTag('user-data');
 const USER_DATA = userData ? userData : '';
 
-const compose =
-  (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || ReduxCompose;
+const compose = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || ReduxCompose;
 const store = createStore(
   combineReducers({ simplewebrtc: reducer }),
   { simplewebrtc: {} as any },
@@ -32,13 +26,26 @@ const store = createStore(
 (window as any).actions = Actions;
 (window as any).selectors = Selectors;
 
-// Force the page to reload after 12 hours
-setTimeout(() => {
-  window.location.reload(true);
-}, 1000 * 60 * 60 * 12);
+// Fix vh units on mobile:
+function setVH() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+setVH();
+window.addEventListener('resize', setVH);
+
+// Force the page to reload after 3 hours
+if (!localStorage.disablePageRefresh) {
+  setTimeout(() => {
+    window.location.reload(true);
+  }, 1000 * 60 * 60 * 3);
+} else {
+  console.log('Forced page refresh disabled');
+}
 
 interface RunConfig {
   roomName: string;
+  initialPassword?: string;
   root: HTMLElement;
   gridPlaceholder?: PlaceholderGenerator;
   haircheckHeaderPlaceholder?: PlaceholderGenerator;
@@ -48,6 +55,7 @@ interface RunConfig {
 
 const run = ({
   roomName,
+  initialPassword,
   root,
   gridPlaceholder,
   haircheckHeaderPlaceholder,
@@ -56,15 +64,25 @@ const run = ({
 }: RunConfig) => {
   if (CONFIG_URL.endsWith('YOUR_API_KEY')) {
     ReactDOM.render(
-      <div className="container" style={{textAlign: 'left'}}>
+      <div className="container" style={{ textAlign: 'left' }}>
         <h1>Configuration Setup Needed:</h1>
-        <p>Edit <code>public/index.html</code> to add your API key to the configuration URL.</p>
-        <p>Visit <a href="https://simplewebrtc.com">simplewebrtc.com</a> to sign up and get an API key.</p>
+        <p>
+          Edit <code>public/index.html</code> to add your API key to the configuration URL.
+        </p>
+        <p>
+          Visit <a href="https://simplewebrtc.com">simplewebrtc.com</a> to sign up and get an API
+          key.
+        </p>
         <h2>How to set your API key:</h2>
-        <p>See the meta tag section marked <code>IMPORTANT SETUP</code> in <code>public/index.html</code>:</p>
+        <p>
+          See the meta tag section marked <code>IMPORTANT SETUP</code> in{' '}
+          <code>public/index.html</code>:
+        </p>
         <pre style={{ textAlign: 'left' }}>
-          {'<!-- IMPORTANT SETUP -->'}<br />
-          {'<!-- Change the YOUR_API_KEY section of the config URL to match your API key -->'}<br />
+          {'<!-- IMPORTANT SETUP -->'}
+          <br />
+          {'<!-- Change the YOUR_API_KEY section of the config URL to match your API key -->'}
+          <br />
           {`<meta
   name="simplewebrtc-config-url"
   content="https://api.simplewebrtc.com/config/guest/YOUR_API_KEY"
@@ -81,13 +99,10 @@ const run = ({
         roomName={roomName}
         configUrl={CONFIG_URL}
         userData={USER_DATA}
+        initialPassword={initialPassword}
         gridPlaceholder={gridPlaceholder ? gridPlaceholder : null}
-        haircheckHeaderPlaceholder={
-          haircheckHeaderPlaceholder ? haircheckHeaderPlaceholder : null
-        }
-        emptyRosterPlaceholder={
-          emptyRosterPlaceholder ? emptyRosterPlaceholder : null
-        }
+        haircheckHeaderPlaceholder={haircheckHeaderPlaceholder ? haircheckHeaderPlaceholder : null}
+        emptyRosterPlaceholder={emptyRosterPlaceholder ? emptyRosterPlaceholder : null}
         homepagePlaceholder={homepagePlaceholder ? homepagePlaceholder : null}
       />
     </Provider>,

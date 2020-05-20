@@ -1,22 +1,18 @@
-import {
-  GridLayout,
-  Peer,
-  PeerList,
-  RemoteMediaList
-} from '@andyet/simplewebrtc';
+import { GridLayout, Peer, PeerList, RemoteMediaList } from '@andyet/simplewebrtc';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import HiddenPeers from '../contexts/HiddenPeers';
 import Placeholders from '../contexts/Placeholders';
-import isMobile from '../utils/isMobile';
 import PeerGridItem from './PeerGridItem';
 
 const StyledGridLayout = styled(GridLayout)({
   flex: 1,
   backgroundColor: '#eaecec',
-  maxHeight: '100vh',
+  maxHeight: 'calc(var(--vh, 1vh) * 100)',
   '& video': {
-    width: '100%'
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain'
   },
   '& > div': {
     position: 'relative'
@@ -26,6 +22,7 @@ const StyledGridLayout = styled(GridLayout)({
 interface Props {
   roomAddress: string;
   activeSpeakerView: boolean;
+  setPassword: (password: string) => void;
 }
 
 // const speakingPeers = peers.filter(p => p.speaking);
@@ -43,7 +40,7 @@ interface Props {
 
 // PeerGrid is the main video display for Talky. It matches remoteMedia to
 // peers and then renders a PeerGridItem for each peer in the room.
-const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView }) => {
+const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView, setPassword }) => {
   const { hiddenPeers } = useContext(HiddenPeers);
   return (
     <PeerList
@@ -58,7 +55,7 @@ const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView }) => {
               <RemoteMediaList
                 peer={peer.address}
                 render={({ media }) => (
-                  <PeerGridItem media={media} peer={peer} />
+                  <PeerGridItem media={media} peer={peer} setPassword={setPassword} />
                 )}
               />
             )}
