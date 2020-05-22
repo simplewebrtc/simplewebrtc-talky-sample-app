@@ -22,3 +22,17 @@ You can retrieve your API key by visiting [https://accounts.simplewebrtc.com](ht
 4. Copy the contents of the `./dist` folder to your hosting location.
 5. Ensure your hosting location is served via HTTPS.
 
+
+## Sound Configuration
+
+Sound effects for peers joining/leaving, messages, and sound output testing can be configured.
+
+Put your audio files into the `/public` directory, and uncomment the desired `<meta />` tags in `/public/index.html`, setting the `content` attribute to the URL of the audio file:
+
+```html
+<meta name="simplewebrtc-sound-message-receive" content="/url-of-mp3-file" />
+<meta name="simplewebrtc-sound-message-send" content="/url-of-mp3-file" />
+<meta name="simplewebrtc-sound-peer-enter" content="/url-of-mp3-file" />
+<meta name="simplewebrtc-sound-peer-exit" content="/url-of-mp3-file" />
+<meta name="simplewebrtc-sound-test-output" content="/url-of-mp3-file" />
+```
