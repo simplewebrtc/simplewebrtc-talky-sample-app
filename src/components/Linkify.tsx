@@ -28,22 +28,22 @@ function getTextSegments(text: string): DetectedUrls[] {
   const segments: DetectedUrls[] = [];
   let currentIndex = 0;
   matches.forEach(match => {
+    const url = match[0];
+    const lower = url.toLowerCase();
+
     if (match.index === 0) {
-      const url = match[0];
       segments.push({
         url,
-        scheme: url.startsWith('http:') || url.startsWith('https:'),
+        scheme: lower.startsWith('http:') || lower.startsWith('https:'),
         slashes: url.startsWith('//')
       });
     } else if (match.index > 0) {
-      const url = match[0];
       segments.push({ text: text.slice(currentIndex, match.index) });
       segments.push({
         url,
-        scheme: url.startsWith('http:') || url.startsWith('https:'),
+        scheme: lower.startsWith('http:') || lower.startsWith('https:'),
         slashes: url.startsWith('//')
       });
-      currentIndex = match.index + match[0].length;
     }
     currentIndex = match.index + match[0].length;
   });
