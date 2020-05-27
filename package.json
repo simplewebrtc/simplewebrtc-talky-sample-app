@@ -41,7 +41,8 @@
     "webpack": "^4.43.0",
     "webpack-bundle-analyzer": "^3.8.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "snyk": "^1.329.0"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -53,7 +54,9 @@
     "fix-lint": "tslint --fix --project .",
     "generate:emoji": "node generate-emoji-shortcodes.js",
     "start": "webpack-dev-server --mode development --open --history-api-fallback",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "prettier": {
     "arrowParens": "avoid",
@@ -62,5 +65,6 @@
     "semi": true,
     "singleQuote": true,
     "trailingComma": "none"
-  }
+  },
+  "snyk": true
 }
