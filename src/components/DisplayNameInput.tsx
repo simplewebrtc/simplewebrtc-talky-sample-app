@@ -5,25 +5,14 @@ interface Props {
   setDisplayName: (name: string) => void;
 }
 
-const DISPLAY_NAME_SETTINGS_KEY = '@andyet/talky-core-settings.nick';
+const DISPLAY_NAME_SETTINGS_KEY = 'displayName';
 
 function setLocalDisplayName(displayName: string) {
   localStorage.setItem(DISPLAY_NAME_SETTINGS_KEY, displayName);
 }
 
 function getLocalDisplayName() {
-  const name = localStorage.getItem(DISPLAY_NAME_SETTINGS_KEY) || '';
-
-  // The old talky-core saved all data by first JSON stringifying,
-  // then JSON parsing on load. So we need to convert old data to
-  // the new format:
-  if (name === '"null"') {
-    return null;
-  }
-  if (name.startsWith('"') && name.endsWith('"')) {
-    return name.substring(1, name.length - 1);
-  }
-  return name;
+  return localStorage.getItem(DISPLAY_NAME_SETTINGS_KEY) || '';
 }
 
 const DisplayNameInput: React.SFC<Props> = ({ displayName, setDisplayName }) => {
