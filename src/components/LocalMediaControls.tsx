@@ -1,3 +1,4 @@
+import { RequestUserMedia } from '@andyet/simplewebrtc';
 import MicIcon from 'material-icons-svg/components/baseline/Mic';
 import MicOffIcon from 'material-icons-svg/components/baseline/MicOff';
 import VideocamIcon from 'material-icons-svg/components/baseline/Videocam';
@@ -66,6 +67,7 @@ const Container = styled.div({
 });
 
 interface LocalMediaControlsProps {
+  hasAudio: boolean;
   isMuted: boolean;
   unmute: () => void;
   mute: () => void;
@@ -79,6 +81,7 @@ interface LocalMediaControlsProps {
 // LocalMediaControls displays buttons to toggle the mute/pause state of the
 // user's audio/video.
 const LocalMediaControls: React.SFC<LocalMediaControlsProps> = ({
+  hasAudio,
   isMuted,
   unmute,
   mute,
@@ -88,13 +91,29 @@ const LocalMediaControls: React.SFC<LocalMediaControlsProps> = ({
   pauseVideo
 }) => (
   <Container>
-    <MuteButton
-      isOff={isMuted}
-      isFlashing={isSpeakingWhileMuted}
-      onClick={() => (isMuted ? unmute() : mute())}
-    >
-      {isMuted ? <MicOffIcon /> : <MicIcon />}
-    </MuteButton>
+    <RequestUserMedia
+      audio={true}
+      share={true}
+      render={(getMedia, captureState) => (
+        <MuteButton
+          isOff={isMuted}
+          isFlashing={isSpeakingWhileMuted || captureState.requestingCapture}
+          onClick={() => {
+            if (captureState.requestingCapture) {
+              return;
+            } else if (!hasAudio) {
+              getMedia();
+            } else if (isMuted) {
+              unmute();
+            } else {
+              mute();
+            }
+          }}
+        >
+          {isMuted ? <MicOffIcon /> : <MicIcon />}
+        </MuteButton>
+      )}
+    />
     <PauseButton isOff={isPaused} onClick={() => (isPaused ? resumeVideo() : pauseVideo())}>
       {isPaused ? <VideocamOffIcon /> : <VideocamIcon />}
     </PauseButton>
