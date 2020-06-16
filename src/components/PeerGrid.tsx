@@ -55,7 +55,12 @@ const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView, setPasswor
               <RemoteMediaList
                 peer={peer.address}
                 render={({ media }) => (
-                  <PeerGridItem media={media} peer={peer} setPassword={setPassword} />
+                  <PeerGridItem
+                    media={media}
+                    peer={peer}
+                    setPassword={setPassword}
+                    onlyVisible={visiblePeers.length === 1}
+                  />
                 )}
               />
             )}

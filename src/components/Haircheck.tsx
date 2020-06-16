@@ -22,7 +22,7 @@ import MediaPreview from './MediaPreview';
 import { default as Meter } from './VolumeMeter';
 
 import getConfigFromMetaTag from '../utils/metaConfig';
-import { createSoundPlayer } from '../utils/sounds';
+import { createSoundPlayer, initSounds } from '../utils/sounds';
 
 const hasTestOutput = getConfigFromMetaTag('sound-test-output');
 const throttledTestOutput = createSoundPlayer('sound-test-output');
@@ -382,6 +382,18 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
                               if (previewVideo) {
                                 shareLocalMedia(previewVideo.id);
                               }
+
+                              if (currentAudioDevice) {
+                                localStorage.preferredAudioDeviceId = currentAudioDevice.deviceId;
+                              }
+                              if (currentVideoDevice) {
+                                localStorage.preferredVideoDeviceId = currentVideoDevice.deviceId;
+                              }
+
+                              // Use this user-gesture to trigger empty audio elements to play, so we can
+                              // later play sound effects.
+                              initSounds();
+
                               this.props.onAccept();
                             }}
                           >
@@ -427,8 +439,20 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
       <RequestUserMedia
         share={false}
         auto={auto}
-        audio={microphonePermissionGranted}
-        video={cameraPermissionGranted}
+        audio={
+          microphonePermissionGranted
+            ? {
+                deviceId: { ideal: localStorage.preferredAudioDeviceId }
+              }
+            : false
+        }
+        video={
+          cameraPermissionGranted
+            ? {
+                deviceId: { ideal: localStorage.preferredVideoDeviceId }
+              }
+            : false
+        }
         replaceAudio={this.state.previewAudioId}
         replaceVideo={this.state.previewVideoId}
         onError={() => {

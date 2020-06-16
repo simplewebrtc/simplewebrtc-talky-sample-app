@@ -89,19 +89,28 @@ const PictureInPictureContainer = styled.div({
 
 interface PeerGridItemMediaProps {
   media: Media[];
+  fullScreenActive?: boolean;
 }
 
-const LoadingVideo: React.SFC<{ media: Media }> = props => {
+const LoadingVideo: React.SFC<{
+  media: Media;
+  qualityProfile?: 'high' | 'medium' | 'low';
+}> = props => {
   if (!props.media.loaded) {
     return <AudioOnlyPeer />;
   }
-  return <Video media={props.media} />;
+  return (
+    <Video
+      media={props.media}
+      qualityProfile={props.media.screenCapture ? undefined : props.qualityProfile}
+    />
+  );
 };
 
 // PeerGridItemMedia renders a different visualization based on what media is
 // available from a peer. It will render video if the peer is sending video,
 // otherwise it renders an audio-only display.
-const PeerGridItemMedia: React.SFC<PeerGridItemMediaProps> = ({ media }) => {
+const PeerGridItemMedia: React.SFC<PeerGridItemMediaProps> = ({ media, fullScreenActive }) => {
   const videoStreams = media.filter(m => m.kind === 'video' && !m.remoteDisabled);
 
   if (videoStreams.length > 0) {
@@ -109,10 +118,20 @@ const PeerGridItemMedia: React.SFC<PeerGridItemMediaProps> = ({ media }) => {
     const screenCaptureStreams = videoStreams.filter(s => s.screenCapture);
 
     if (videoStreams.length === 1) {
-      return <LoadingVideo media={videoStreams[0]} />;
+      return (
+        <LoadingVideo
+          media={videoStreams[0]}
+          qualityProfile={fullScreenActive ? 'high' : 'medium'}
+        />
+      );
     }
     if (screenCaptureStreams.length === 0) {
-      return <LoadingVideo media={webcamStreams[0]} />;
+      return (
+        <LoadingVideo
+          media={webcamStreams[0]}
+          qualityProfile={fullScreenActive ? 'high' : 'medium'}
+        />
+      );
     }
 
     return (
@@ -120,7 +139,7 @@ const PeerGridItemMedia: React.SFC<PeerGridItemMediaProps> = ({ media }) => {
         {/* Screenshare */}
         <LoadingVideo media={screenCaptureStreams[0]} />
         {/* Camera */}
-        <Video media={webcamStreams[0]} />
+        <Video media={webcamStreams[0]} qualityProfile="low" />
       </PictureInPictureContainer>
     );
   }
@@ -287,10 +306,11 @@ interface PeerGridItemProps {
   peer: Peer;
   media: Media[];
   setPassword: (password: string) => void;
+  onlyVisible: boolean;
 }
 
 // PeerGridItem renders various controls over a peer's media.
-const PeerGridItem: React.SFC<PeerGridItemProps> = ({ peer, media, setPassword }) => (
+const PeerGridItem: React.SFC<PeerGridItemProps> = ({ peer, media, setPassword, onlyVisible }) => (
   <FullScreen style={{ width: '100%', height: '100%' }}>
     {({ fullScreenActive, toggleFullScreen }) => (
       <>
@@ -301,7 +321,7 @@ const PeerGridItem: React.SFC<PeerGridItemProps> = ({ peer, media, setPassword }
           toggleFullScreen={toggleFullScreen}
           setPassword={setPassword}
         />
-        <PeerGridItemMedia media={media} />
+        <PeerGridItemMedia media={media} fullScreenActive={fullScreenActive || onlyVisible} />
       </>
     )}
   </FullScreen>

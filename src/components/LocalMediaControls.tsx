@@ -92,12 +92,16 @@ const LocalMediaControls: React.SFC<LocalMediaControlsProps> = ({
 }) => (
   <Container>
     <RequestUserMedia
-      audio={true}
+      audio={{
+        deviceId: {
+          ideal: localStorage.preferredAudioDeviceId
+        }
+      }}
       share={true}
       render={(getMedia, captureState) => (
         <MuteButton
           isOff={isMuted}
-          isFlashing={isSpeakingWhileMuted || captureState.requestingCapture}
+          isFlashing={isSpeakingWhileMuted || captureState.requestingMicrophoneCapture}
           onClick={() => {
             if (captureState.requestingCapture) {
               return;
