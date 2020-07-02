@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- IMPORTANT SETUP -->
+    <!-- Change the YOUR_API_KEY section of the config URL to match your API key --> 
+    <meta
+      name="simplewebrtc-config-url"
+      content="https://api.simplewebrtc.com/config/guest/32b9eb02645b11cb48d53829"
+    />
+
+    <!--
+      The Talky Sample app can be configured to play sounds in some cases:
+
+      <meta name="simplewebrtc-sound-message-receive" content="/url-of-mp3-file" />
+      <meta name="simplewebrtc-sound-message-send" content="/url-of-mp3-file" />
+      <meta name="simplewebrtc-sound-peer-enter" content="/url-of-mp3-file" />
+      <meta name="simplewebrtc-sound-peer-exit" content="/url-of-mp3-file" />
+      <meta name="simplewebrtc-sound-test-output" content="/url-of-mp3-file" />
+    -->
+
+    <title>SimpleWebRTC Sample App</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        min-height: 100%;
+        font-family: -apple-system,
+          BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+          'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #4d5659;
+        text-rendering: optimizeSpeed;
+      }
+
+      code {
+        font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+          monospace;
+      }
+
+      [hidden] {
+        display: none;
+      }
+
+      a {
+        background-color: transparent;
+        text-decoration: none;
+      }
+
+      a:active,
+      a:hover {
+        outline: 0;
+      }
+
+      img {
+        border: 0;
+      }
+
+      svg:not(:root) {
+        overflow: hidden;
+      }
+
+      button,
+      input {
+        color: inherit;
+        font: inherit;
+        margin: 0;
+      }
+
+      button {
+        overflow: visible;
+      }
+
+      button {
+        text-transform: none;
+      }
+
+      button,
+      html input[type='button'],
+      input[type='reset'],
+      input[type='submit'] {
+        -webkit-appearance: button;
+        cursor: pointer;
+      }
+
+      button[disabled],
+      html input[disabled] {
+        cursor: default;
+      }
+
+      button::-moz-focus-inner,
+      input::-moz-focus-inner {
+        border: 0;
+        padding: 0;
+      }
+
+      input {
+        line-height: normal;
+      }
+
+      *,
+      *:after,
+      *:before {
+        box-sizing: border-box;
+      }
+
+      p {
+        margin-top: 0;
+        margin-bottom: 30px;
+      }
+
+      img,
+      video {
+        max-width: 100%;
+      }
+
+      html {
+        box-sizing: border-box;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+      }
+    
+      .create-room-form {
+        text-align: center;
+      }
+
+      .create-room-form-input-wrapper {
+        border: 1px #00b0e9 solid;
+        padding: 10px;
+        border-radius: 3px;
+      }
+
+      .create-room-form-input-wrapper:focus {
+        border: 1px #f00 solid;
+      }
+
+      .domain {
+        color: #b7c0c3;
+      }
+
+      .create-room-form-input {
+        border: none;
+        background: none;
+        color: #00b0e9;
+      }
+
+      .create-room-form-input:focus {
+        outline: none;
+      }
+
+      .create-room-form-button {
+        margin-left: 5px;
+        padding: 8px 10px !important;
+        display: inline-block;
+      }
+
+      @media (max-width: 420px) {
+        .create-room-form-input-wrapper {
+          width: 100%;
+          display: block;
+          text-align: left;
+        }
+        .create-room-form-button {
+          width: 100%;
+          margin-top: 20px;
+          display: block;
+          margin-left: 0px;
+        }
+        .create-room-form-input {
+          width: 75%;
+        }
+      }
+
+      .container {
+        margin: 60px auto;
+        width: 85%;
+        max-width: 800px;
+        text-align: center;
+      }
+    </style>
+  <script type="text/javascript" src="bundle.min.js"></script></head>
+  <body>
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <div id="root"></div>
+    <template id="haircheck-header">
+      <h2 style="text-align: center">Ready to join a video chat?</h2>
+    </template>
+    <template id="empty-peer-grid">
+      <h2 style="text-align: center; color: rgba(68, 68, 68, 0.25)">
+        There isn't anyone here (yet!)
+      </h2>
+    </template>
+    <template id="empty-roster">
+      <div></div>
+    </template>
+    <template id="homepage">
+      <div class="container">
+        <form class="create-room-form" method="GET" action="/">
+          <span class="create-room-form-input-wrapper"
+            ><span class="domain">localhost/</span
+            ><input
+              type="text"
+              name="room"
+              placeholder="choose a room name"
+              class="create-room-form-input"/></span
+          ><button
+            class="create-room-form-button button button-default button-undefined"
+            type="submit"
+          >
+            Start a chat
+          </button>
+        </form>
+      </div>
+    </template>
+    <script type="text/javascript">
+      const params = new URLSearchParams(window.location.search);
+      SimpleWebRTC.run({
+        roomName: params.get('room'),
+        root: document.getElementById('root'),
+        gridPlaceholder: () => SimpleWebRTC.loadTemplate('empty-peer-grid'),
+        haircheckHeaderPlaceholder: () =>
+          SimpleWebRTC.loadTemplate('haircheck-header'),
+        emptyRosterPlaceholder: () => SimpleWebRTC.loadTemplate('empty-roster'),
+        homepagePlaceholder: () => SimpleWebRTC.loadTemplate('homepage')
+      });
+    </script>
+  </body>
+</html>
