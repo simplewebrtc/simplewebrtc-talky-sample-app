@@ -11,7 +11,7 @@
     "@andyet/simplewebrtc": "^1.22.0",
     "@types/jest": "^24.9.1",
     "@types/lodash-es": "^4.17.2",
-    "@types/react": "^16.9.35",
+    "@types/react": "^16.9.37",
     "@types/react-dom": "^16.9.8",
     "@types/react-modal": "^3.10.5",
     "@types/react-router": "^4.4.4",
