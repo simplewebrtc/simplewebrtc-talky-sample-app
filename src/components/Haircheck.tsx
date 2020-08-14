@@ -16,6 +16,7 @@ import Placeholders from '../contexts/Placeholders';
 import { TalkyButton } from '../styles/button';
 import mq from '../styles/media-queries';
 import { colorToString } from '../utils/colorify';
+import { deviceSupportsVolumeMonitoring } from '../utils/isMobile';
 
 import { Error, Info } from './Alerts';
 import MediaPreview from './MediaPreview';
@@ -336,7 +337,7 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
                               'Disable Microphone'
                             )}
                           </label>
-                          {previewAudio ? (
+                          {!deviceSupportsVolumeMonitoring() ? null : previewAudio ? (
                             <VolumeMeter
                               media={previewAudio}
                               noInputTimeout={7000}
@@ -453,6 +454,7 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
               }
             : false
         }
+        volumeMonitoring={deviceSupportsVolumeMonitoring()}
         replaceAudio={this.state.previewAudioId}
         replaceVideo={this.state.previewVideoId}
         onError={() => {
@@ -515,6 +517,7 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
         {...constraints}
         replaceAudio={this.state.previewAudioId}
         replaceVideo={this.state.previewVideoId}
+        volumeMonitoring={deviceSupportsVolumeMonitoring()}
         render={getMedia => {
           if (!preview && !permissionGranted) {
             return (

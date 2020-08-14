@@ -151,6 +151,10 @@ class Index extends Component<Props, State> {
                               setPassword={this.setPassword}
                             />
                           </PasswordEntryContainer>
+                        ) : room.roomFull ? (
+                          <LoadingState>
+                            <h1>This room is full.</h1>
+                          </LoadingState>
                         ) : room.roomNotStarted ? (
                           <LoadingState>
                             <h1>This room has not started yet.</h1>
