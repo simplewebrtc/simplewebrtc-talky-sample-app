@@ -8,10 +8,9 @@
     "last 2 Edge versions"
   ],
   "dependencies": {
-    "@andyet/simplewebrtc": "^1.22.0",
+    "@andyet/simplewebrtc": "^1.29.0",
     "@types/jest": "^24.9.1",
     "@types/lodash-es": "^4.17.2",
-    "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
     "@types/react-modal": "^3.10.5",
     "@types/react-router": "^4.4.4",
@@ -22,6 +21,7 @@
     "copy-webpack-plugin": "5.1.1",
     "eslint": "^6.8.0",
     "html-webpack-plugin": "^3.2.0",
+    "jsonwebtoken": "^8.5.1",
     "lodash-es": "^4.17.15",
     "material-icons-svg": "^1.0.0",
     "node-fetch": "^2.5.0",
@@ -62,5 +62,8 @@
     "semi": true,
     "singleQuote": true,
     "trailingComma": "none"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.41"
   }
 }
