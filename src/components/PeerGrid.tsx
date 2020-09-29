@@ -41,15 +41,18 @@ interface Props {
 // PeerGrid is the main video display for Talky. It matches remoteMedia to
 // peers and then renders a PeerGridItem for each peer in the room.
 const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView, setPassword }) => {
+  const hasBotPeer = true // TODO: something needs to check for the bot peer before filtering
   const { hiddenPeers } = useContext(HiddenPeers);
   return (
     <PeerList
+      filter={(peer) => { return peer.customerData.recordingBot }}
       speaking={activeSpeakerView ? activeSpeakerView : undefined}
       room={roomAddress}
       render={({ peers }) => {
         const visiblePeers = peers.filter(p => !hiddenPeers.includes(p.id));
         return visiblePeers.length > 0 || activeSpeakerView ? (
           <StyledGridLayout
+            recordingIndicator={hasBotPeer}
             items={visiblePeers}
             renderCell={(peer: Peer) => (
               <RemoteMediaList
