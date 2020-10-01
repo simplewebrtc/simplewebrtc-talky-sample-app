@@ -4,6 +4,7 @@ import {
   Connecting,
   Disconnected,
   Failed,
+  PeerList,
   Provider,
   RemoteAudioPlayer,
   Room
@@ -52,6 +53,37 @@ const LoadingState = styled.div({
   justifyContent: 'center',
   position: 'relative'
 });
+
+const RecordingIndicator = styled.div`
+  display: inline-block;
+  height: 25px;
+  width: 25px;
+  margin: 15px;
+  right: 0;
+  background-color: #d82007;
+  border-radius: 50%;
+  position: absolute;
+  z-index: 10;
+
+  &:hover .tooltip {
+    visibility: visible;
+  }
+  .tooltip {
+    visibility: hidden;
+    width: 180px;
+    top: -5px;
+    right: 105%;
+    color: #fff;
+    background-color: gray;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+  }
+`;
 
 interface Props {
   configUrl: string;
@@ -138,11 +170,23 @@ class Index extends Component<Props, State> {
                       </Failed>
                       <Connected>
                         {room.joined ? (
-                          <PeerGrid
-                            roomAddress={room.address!}
-                            activeSpeakerView={this.state.activeSpeakerView}
-                            setPassword={this.setPassword}
-                          />
+                          <Container>
+                            <PeerList
+                              room={room.address!}
+                              filter={(peer) => { return peer.customerData.isAHiddenBot }}
+                              render={({ peers }) => peers.length > 0 ?
+                                <RecordingIndicator>
+                                  <div className='tooltip'>
+                                    This call is recorded
+                                  </div>
+                                </RecordingIndicator> : null}
+                            />
+                            <PeerGrid
+                              roomAddress={room.address!}
+                              activeSpeakerView={this.state.activeSpeakerView}
+                              setPassword={this.setPassword}
+                              />
+                          </Container>
                         ) : room.passwordRequired ? (
                           <PasswordEntryContainer>
                             <PasswordEntry
