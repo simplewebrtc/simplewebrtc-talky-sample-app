@@ -42,8 +42,6 @@ interface Props {
 // peers and then renders a PeerGridItem for each peer in the room.
 const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView, setPassword }) => {
 
-  const hasBotPeer = false;
-
   const { hiddenPeers } = useContext(HiddenPeers);
   return (
     <PeerList
