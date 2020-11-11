@@ -1,8 +1,5 @@
-import { ChatList, PeerList, UserControls } from '@andyet/simplewebrtc';
+import { Notifications, UserControls } from '@andyet/simplewebrtc';
 import React from 'react';
-
-import ChatNotifications from './ChatNotifications';
-import PeerNotifications from './PeerNotifications';
 
 import { createSoundPlayer } from '../utils/sounds';
 
@@ -18,28 +15,12 @@ interface Props {
 const SoundPlayer: React.SFC<Props> = ({ roomAddress }) => (
   <UserControls
     render={({ user }) => (
-      <>
-        <PeerList
-          room={roomAddress}
-          render={({ peers }) => (
-            <PeerNotifications
-              peers={peers}
-              onPeerEnter={() => throttledPeerEnter(user.audioOutputDeviceId)}
-              onPeerExit={() => throttledPeerExit(user.audioOutputDeviceId)}
-            />
-          )}
-        />
-        <ChatList
-          room={roomAddress}
-          render={({ groups }) => (
-            <ChatNotifications
-              groups={groups}
-              onSend={() => throttledSend(user.audioOutputDeviceId)}
-              onReceive={() => throttledReceive(user.audioOutputDeviceId)}
-            />
-          )}
-        />
-      </>
+      <Notifications
+        onPeerEntered={() => throttledPeerEnter(user.audioOutputDeviceId)}
+        onPeerLeft={() => throttledPeerExit(user.audioOutputDeviceId)}
+        onChatSent={() => throttledSend(user.audioOutputDeviceId)}
+        onChatReceived={() => throttledReceive(user.audioOutputDeviceId)}
+      />
     )}
   />
 );

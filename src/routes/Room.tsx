@@ -195,6 +195,10 @@ class Index extends Component<Props, State> {
                               setPassword={this.setPassword}
                             />
                           </PasswordEntryContainer>
+                        ) : room.roomFull ? (
+                          <LoadingState>
+                            <h1>This room is full.</h1>
+                          </LoadingState>
                         ) : room.roomNotStarted ? (
                           <LoadingState>
                             <h1>This room has not started yet.</h1>
@@ -213,8 +217,6 @@ class Index extends Component<Props, State> {
                         <ChatContainer
                           disabled={!room.joined}
                           roomAddress={room.address!}
-                          sendRtt={this.state.sendRtt}
-                          toggleRtt={this.toggleRtt}
                           toggleChat={this.toggleChat}
                         />
                       ) : (
@@ -233,10 +235,6 @@ class Index extends Component<Props, State> {
 
   private toggleActiveSpeakerView = () => {
     this.setState({ activeSpeakerView: !this.state.activeSpeakerView });
-  };
-
-  private toggleRtt = () => {
-    this.setState({ sendRtt: !this.state.sendRtt });
   };
 
   private togglePttMode = (e: React.SyntheticEvent) => {

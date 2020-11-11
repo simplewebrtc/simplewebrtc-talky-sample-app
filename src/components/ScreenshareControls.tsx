@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { TalkyButton } from '../styles/button';
 import mq from '../styles/media-queries';
+import { deviceSupportsVolumeMonitoring } from '../utils/isMobile';
 
 const Button = styled(TalkyButton)({
   display: 'none',
@@ -22,6 +23,7 @@ const EmptySpacer = styled.span({
 const ScreenshareControls: React.SFC = () => (
   <RequestDisplayMedia
     audio
+    volumeMonitoring={deviceSupportsVolumeMonitoring()}
     render={(getDisplayMedia, sharing) => {
       if (!sharing.available) {
         return <EmptySpacer />;
