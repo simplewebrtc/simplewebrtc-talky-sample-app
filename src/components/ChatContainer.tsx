@@ -2,13 +2,17 @@ import {
   Chat,
   ChatComposers,
   ChatInput,
+  ChatInputTextArea,
   ChatList,
   Peer,
   StayDownContainer
 } from '@andyet/simplewebrtc';
+import SendIcon from 'material-icons-svg/components/baseline/Chat';
+import ChatIcon from 'material-icons-svg/components/baseline/ChatBubbleOutline';
 import KeyboardArrowDownIcon from 'material-icons-svg/components/baseline/KeyboardArrowDown';
 import React from 'react';
 import styled, { css } from 'styled-components';
+import { TalkyButton } from '../styles/button';
 import mq from '../styles/media-queries';
 import { colorToString } from '../utils/colorify';
 import emojify from '../utils/emojify';
@@ -29,7 +33,7 @@ const Container = styled.div`
   }
 
   ${mq.SMALL_DESKTOP} {
-    width: 200px;
+    width: 220px;
     border-top: none;
     border-left: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
   }
@@ -160,8 +164,6 @@ const ComposersContainer = styled.div({
 interface Props {
   disabled?: boolean;
   roomAddress: string;
-  sendRtt: boolean;
-  toggleRtt: () => void;
   toggleChat: () => void;
 }
 
@@ -169,16 +171,11 @@ interface Props {
 // includes a message display embedded inside a StayDownContainer so that
 // it remains scrolled to the bottom, a ChatInput to type messages, and a
 // text element that displays currently typing peers.
-const ChatContainer: React.SFC<Props> = ({
-  roomAddress,
-  sendRtt,
-  toggleRtt,
-  toggleChat,
-  disabled
-}) => (
+const ChatContainer: React.SFC<Props> = ({ roomAddress, toggleChat, disabled }) => (
   <Container>
     <Header onClick={toggleChat}>
       <KeyboardArrowDownIcon />
+      <ChatIcon />
       <span>Chat</span>
     </Header>
     <StyledStayDownContainer>
@@ -194,13 +191,25 @@ const ChatContainer: React.SFC<Props> = ({
         autoFocus
         disabled={disabled}
         room={roomAddress}
-        rtt={sendRtt}
         placeholder={disabled ? 'Waiting to join room...' : 'Send a message...'}
+        render={chatProps => (
+          <>
+            <ChatInputTextArea {...chatProps} />
+            <label style={{ display: 'inline-block' }}>
+              <input
+                type="checkbox"
+                checked={chatProps.rtt}
+                onChange={() => chatProps.useRealtimeText(!chatProps.rtt)}
+              />
+              <span>Send as I type</span>
+            </label>
+            <TalkyButton onClick={chatProps.sendMessage} style={{ float: 'right' }}>
+              <SendIcon />
+              <span>Send</span>
+            </TalkyButton>
+          </>
+        )}
       />
-      <label style={{ display: 'block' }}>
-        <input type="checkbox" checked={sendRtt} onChange={toggleRtt} />
-        Send as I type
-      </label>
     </InputContainer>
     <ComposersContainer>
       <ChatComposers room={roomAddress} />
