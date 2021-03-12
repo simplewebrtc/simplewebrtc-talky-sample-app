@@ -8,6 +8,7 @@ import App from './App';
 import { PlaceholderGenerator } from './types';
 import getConfigFromMetaTag from './utils/metaConfig';
 import randomRoomName from './utils/randomRoomName';
+import Homepage from './screens/Homepage';
 
 const configUrl = getConfigFromMetaTag('config-url');
 const CONFIG_URL = configUrl ? configUrl : '';
@@ -100,10 +101,6 @@ const run = ({
         configUrl={CONFIG_URL}
         userData={USER_DATA}
         initialPassword={initialPassword}
-        gridPlaceholder={gridPlaceholder ? gridPlaceholder : null}
-        haircheckHeaderPlaceholder={haircheckHeaderPlaceholder ? haircheckHeaderPlaceholder : null}
-        emptyRosterPlaceholder={emptyRosterPlaceholder ? emptyRosterPlaceholder : null}
-        homepagePlaceholder={homepagePlaceholder ? homepagePlaceholder : null}
       />
     </Provider>,
     root

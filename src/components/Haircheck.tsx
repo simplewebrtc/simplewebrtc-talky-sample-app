@@ -201,16 +201,9 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
             <Container>
               <Placeholders.Consumer>
                 {({ haircheckHeaderPlaceholder }) => (
-                  <Header
-                    ref={node => {
-                      if (node && haircheckHeaderPlaceholder && node.childElementCount === 0) {
-                        const el = haircheckHeaderPlaceholder();
-                        if (el) {
-                          node.appendChild(el);
-                        }
-                      }
-                    }}
-                  />
+                  <Header>
+                    <h2 style={{textAlign: "center"}}>Ready to join a video chat?</h2>
+                  </Header>
                 )}
               </Placeholders.Consumer>
               <Preview>

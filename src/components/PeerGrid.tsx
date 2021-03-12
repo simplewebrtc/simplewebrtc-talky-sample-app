@@ -67,24 +67,15 @@ const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView, setPasswor
           />
         ) : (
           <Placeholders.Consumer>
-            {({ gridPlaceholder }) => (
-              <div
+            {() => (
+              <h2 
                 style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative'
+                  textAlign: "center",
+                  color: "rgba(68, 68, 68, 0.25)",
                 }}
-                ref={node => {
-                  if (node && gridPlaceholder && node.childElementCount === 0) {
-                    const el = gridPlaceholder();
-                    if (el) {
-                      node.appendChild(el);
-                    }
-                  }
-                }}
-              />
+              >
+                There isn't anyone here (yet!)
+              </h2>
             )}
           </Placeholders.Consumer>
         );

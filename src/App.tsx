@@ -62,10 +62,6 @@ interface Props {
   userData?: string;
   roomName?: string;
   initialPassword?: string;
-  gridPlaceholder: PlaceholderGenerator;
-  haircheckHeaderPlaceholder: PlaceholderGenerator;
-  emptyRosterPlaceholder: PlaceholderGenerator;
-  homepagePlaceholder: PlaceholderGenerator;
 }
 
 class App extends Component<Props> {
@@ -75,46 +71,42 @@ class App extends Component<Props> {
       configUrl,
       userData,
       initialPassword,
-      gridPlaceholder,
-      haircheckHeaderPlaceholder,
-      emptyRosterPlaceholder,
-      homepagePlaceholder
     } = this.props;
     return (
       <ThemeProvider>
-        <Placeholders.Provider
-          value={{
-            gridPlaceholder,
-            haircheckHeaderPlaceholder,
-            emptyRosterPlaceholder,
-            homepagePlaceholder
-          }}
-        >
-          <div>
-            <GlobalStyle />
-            <Container>
-              {roomName ? (
-                <Room
-                  name={roomName}
-                  configUrl={configUrl}
-                  userData={userData}
-                  initialPassword={initialPassword}
-                />
-              ) : (
-                <div
-                  ref={node => {
-                    if (node && homepagePlaceholder && node.childElementCount === 0) {
-                      const el = homepagePlaceholder();
-                      if (el) {
-                        node.appendChild(el);
-                      }
-                    }
-                  }}
-                />
-              )}
-            </Container>
-          </div>
-        </Placeholders.Provider>
+        <div>
+          <GlobalStyle />
+          <Container>
+            {roomName ? (
+              <Room
+                name={roomName}
+                configUrl={configUrl}
+                userData={userData}
+                initialPassword={initialPassword}
+              />
+            ) : (
+              <div className="container">
+                <form className="create-room-form" method="GET" action="/">
+                  <span className="create-room-form-input-wrapper">
+                    <span className="domain">localhost/</span>
+                    <input
+                      type="text"
+                      name="room"
+                      placeholder="choose a room name"
+                      className="create-room-form-input"
+                    />
+                  </span>
+                  <button
+                    className="create-room-form-button button button-default button-undefined"
+                    type="submit"
+                  >
+                    Start a chat
+                  </button>
+                </form>
+              </div>
+            )}
+          </Container>
+        </div>
       </ThemeProvider>
     );
   }

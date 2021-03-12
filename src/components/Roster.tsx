@@ -62,16 +62,7 @@ const Roster: React.SFC<Props> = ({ roomAddress }) => (
       ) : (
         <Placeholders.Consumer>
           {({ emptyRosterPlaceholder }) => (
-            <div
-              ref={node => {
-                if (node && emptyRosterPlaceholder && node.childElementCount === 0) {
-                  const el = emptyRosterPlaceholder();
-                  if (el) {
-                    node.appendChild(el);
-                  }
-                }
-              }}
-            />
+            <div></div>
           )}
         </Placeholders.Consumer>
       );
