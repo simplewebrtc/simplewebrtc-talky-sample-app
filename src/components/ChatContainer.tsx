@@ -27,6 +27,7 @@ const Container = styled.div`
   z-index: 300;
   background-color: ${({ theme }) => colorToString(theme.background)};
   overflow: hidden;
+  margin-left: auto;
 
   & .msg:last-of-type {
     border-bottom: none;

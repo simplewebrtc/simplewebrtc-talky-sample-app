@@ -52,6 +52,13 @@ interface RunConfig {
   haircheckHeaderPlaceholder?: PlaceholderGenerator;
   emptyRosterPlaceholder?: PlaceholderGenerator;
   homepagePlaceholder?: PlaceholderGenerator;
+  openToPublic: boolean;
+  showHostVideo: boolean;
+  showVisitorVideo: boolean;
+  allowInvites: boolean;
+  allowShareScreen: boolean;
+  allowWalkieTalkieMode: boolean;
+  allowChat: boolean;
 }
 
 const run = ({
@@ -61,7 +68,14 @@ const run = ({
   gridPlaceholder,
   haircheckHeaderPlaceholder,
   emptyRosterPlaceholder,
-  homepagePlaceholder
+  homepagePlaceholder,
+  openToPublic = true,
+  showHostVideo = true,
+  showVisitorVideo = true,
+  allowInvites = true,
+  allowShareScreen = true,
+  allowWalkieTalkieMode = true,
+  allowChat = true,
 }: RunConfig) => {
   if (CONFIG_URL.endsWith('YOUR_API_KEY')) {
     ReactDOM.render(
@@ -101,6 +115,15 @@ const run = ({
         configUrl={CONFIG_URL}
         userData={USER_DATA}
         initialPassword={initialPassword}
+        roomConfig={{
+          openToPublic,
+          showHostVideo,
+          showVisitorVideo,
+          allowInvites,
+          allowShareScreen,
+          allowWalkieTalkieMode,
+          allowChat,
+        }}
       />
     </Provider>,
     root

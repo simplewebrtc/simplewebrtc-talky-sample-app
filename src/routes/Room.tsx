@@ -53,6 +53,16 @@ const LoadingState = styled.div({
   position: 'relative'
 });
 
+interface RoomConfig {
+  openToPublic: boolean;
+  showHostVideo: boolean;
+  showVisitorVideo: boolean;
+  allowInvites: boolean;
+  allowShareScreen: boolean;
+  allowWalkieTalkieMode: boolean;
+  allowChat: boolean;
+}
+
 interface Props {
   configUrl: string;
   userData?: string;
@@ -60,6 +70,7 @@ interface Props {
   initialPassword?: string;
   mute?: () => void;
   unmute?: () => void;
+  roomConfig: RoomConfig;
 }
 
 interface State {
@@ -70,11 +81,27 @@ interface State {
   password?: string;
   chatOpen: boolean;
   hiddenPeers: string[];
+  openToPublic: boolean;
+  showHostVideo: boolean;
+  showVisitorVideo: boolean;
+  allowInvites: boolean;
+  allowShareScreen: boolean;
+  allowWalkieTalkieMode: boolean;
+  allowChat: boolean;
 }
 
 class Index extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    const {
+      openToPublic,
+      showHostVideo,
+      showVisitorVideo,
+      allowInvites,
+      allowShareScreen,
+      allowWalkieTalkieMode,
+      allowChat,
+    } = props.roomConfig;
     this.state = {
       activeSpeakerView: false,
       consentToJoin: false,
@@ -82,7 +109,14 @@ class Index extends Component<Props, State> {
       pttMode: false,
       sendRtt: false,
       chatOpen: false,
-      hiddenPeers: []
+      hiddenPeers: [],
+      openToPublic,
+      showHostVideo,
+      showVisitorVideo,
+      allowInvites,
+      allowShareScreen,
+      allowWalkieTalkieMode,
+      allowChat,
     };
   }
 
@@ -120,6 +154,9 @@ class Index extends Component<Props, State> {
                         passwordRequired={room.passwordRequired}
                         roomId={room.id!}
                         currentPassword={room.password}
+                        allowInvites={this.state.allowInvites}
+                        allowShareScreen={this.state.allowShareScreen}
+                        allowWalkieTalkieMode={this.state.allowWalkieTalkieMode}
                       />
                       <Connecting>
                         <LoadingState>
@@ -169,15 +206,17 @@ class Index extends Component<Props, State> {
                           </LoadingState>
                         )}
                       </Connected>
-                      {this.state.chatOpen ? (
-                        <ChatContainer
-                          disabled={!room.joined}
-                          roomAddress={room.address!}
-                          toggleChat={this.toggleChat}
-                        />
-                      ) : (
-                        <ChatToggle roomAddress={room.address!} onClick={this.toggleChat} />
-                      )}
+                      {this.state.allowChat ? (
+                        this.state.chatOpen ? (
+                          <ChatContainer
+                            disabled={!room.joined}
+                            roomAddress={room.address!}
+                            toggleChat={this.toggleChat}
+                          />
+                        ) : (
+                          <ChatToggle roomAddress={room.address!} onClick={this.toggleChat} />
+                        )
+                      ) : null}
                     </Container>
                   );
                 }}

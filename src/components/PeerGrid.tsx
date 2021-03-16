@@ -25,6 +25,14 @@ interface Props {
   setPassword: (password: string) => void;
 }
 
+const H2 = styled.h2`
+  color: rgba(68, 68, 68, 0.25);
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`
+
 // const speakingPeers = peers.filter(p => p.speaking);
 
 // let peersToRender = [];
@@ -68,14 +76,9 @@ const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView, setPasswor
         ) : (
           <Placeholders.Consumer>
             {() => (
-              <h2 
-                style={{
-                  textAlign: "center",
-                  color: "rgba(68, 68, 68, 0.25)",
-                }}
-              >
+              <H2>
                 There isn't anyone here (yet!)
-              </h2>
+              </H2>
             )}
           </Placeholders.Consumer>
         );

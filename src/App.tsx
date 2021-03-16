@@ -57,11 +57,22 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+interface RoomConfig {
+  openToPublic: boolean;
+  showHostVideo: boolean;
+  showVisitorVideo: boolean;
+  allowInvites: boolean;
+  allowShareScreen: boolean;
+  allowWalkieTalkieMode: boolean;
+  allowChat: boolean;
+}
+
 interface Props {
   configUrl: string;
   userData?: string;
   roomName?: string;
   initialPassword?: string;
+  roomConfig: RoomConfig;
 }
 
 class App extends Component<Props> {
@@ -71,6 +82,7 @@ class App extends Component<Props> {
       configUrl,
       userData,
       initialPassword,
+      roomConfig,
     } = this.props;
     return (
       <ThemeProvider>
@@ -83,6 +95,7 @@ class App extends Component<Props> {
                 configUrl={configUrl}
                 userData={userData}
                 initialPassword={initialPassword}
+                roomConfig={roomConfig}
               />
             ) : (
               <div className="container">
