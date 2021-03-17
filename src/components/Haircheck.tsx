@@ -206,9 +206,9 @@ class Haircheck extends React.Component<HaircheckProps, HaircheckState> {
                   </Header>
                 )}
               </Placeholders.Consumer>
-              <Preview>
+              {/* <Preview>
                 <MediaPreview video={previewVideo} />
-              </Preview>
+              </Preview> */}
               <Controls>
                 <DeviceList
                   render={({

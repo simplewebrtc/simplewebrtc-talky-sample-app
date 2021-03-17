@@ -7,8 +7,10 @@ import { PlaceholderGenerator } from './types';
 import { colorToString, darken } from './utils/colorify';
 
 const Container = styled.div`
-  height: calc(var(--vh, 1vh) * 100);
-  width: 100vw;
+  /* height: calc(var(--vh, 1vh) * 100);
+  width: 100vw; */
+  height: 100%;
+  width: 100%;
   background-color: ${({ theme }) => colorToString(theme.background)};
   color: ${({ theme }) => colorToString(theme.foreground)};
   a {
@@ -86,7 +88,7 @@ class App extends Component<Props> {
     } = this.props;
     return (
       <ThemeProvider>
-        <div>
+        <div style={{ height: "100%" }}>
           <GlobalStyle />
           <Container>
             {roomName ? (

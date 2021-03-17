@@ -32,7 +32,7 @@ const PasswordEntryContainer = styled.div({
 const RootContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(var(--vh, 1vh) * 100)'
+  height: '100%'
 });
 
 const Container = styled.div({
