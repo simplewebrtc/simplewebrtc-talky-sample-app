@@ -1,4 +1,4 @@
-# SimpleWebRTC Sample Talky App
+# Fast Effect Talky App
 
 To get started, you will first need to edit `public/index.html` to set your API key.
 
@@ -35,4 +35,22 @@ Put your audio files into the `/public` directory, and uncomment the desired `<m
 <meta name="simplewebrtc-sound-peer-enter" content="/url-of-mp3-file" />
 <meta name="simplewebrtc-sound-peer-exit" content="/url-of-mp3-file" />
 <meta name="simplewebrtc-sound-test-output" content="/url-of-mp3-file" />
+```
+
+## App Options
+
+The app can be easily configured with a few options. The only *required* option is the `root`.
+
+```javascript
+SimpleWebRTC.run({
+  root: document.getElementById('root'), // required
+  roomName: params.get('room'),
+  openToPublic: true,
+  showHostVideo: true,
+  showVisitorVideo: true,
+  allowInvites: false,
+  allowShareScreen: false,
+  allowWalkieTalkieMode: false,
+  allowChat: true,
+});
 ```

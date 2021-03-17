@@ -234,13 +234,13 @@
     <script type="text/javascript">
       const params = new URLSearchParams(window.location.search);
       SimpleWebRTC.run({
-        roomName: params.get('room'),
-        root: document.getElementById('root'),
         // gridPlaceholder: () => SimpleWebRTC.loadTemplate('empty-peer-grid'),
         // haircheckHeaderPlaceholder: () =>
         //   SimpleWebRTC.loadTemplate('haircheck-header'),
         // emptyRosterPlaceholder: () => SimpleWebRTC.loadTemplate('empty-roster'),
         // homepagePlaceholder: () => SimpleWebRTC.loadTemplate('homepage')
+        roomName: params.get('room'),
+        root: document.getElementById('root'),
         openToPublic: true,
         showHostVideo: true,
         showVisitorVideo: true,
