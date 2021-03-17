@@ -108,7 +108,7 @@ class Index extends Component<Props, State> {
       password: props.initialPassword,
       pttMode: false,
       sendRtt: false,
-      chatOpen: false,
+      chatOpen: true,
       hiddenPeers: [],
       openToPublic,
       showHostVideo,
