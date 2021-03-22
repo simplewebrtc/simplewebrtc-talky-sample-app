@@ -72,6 +72,7 @@ interface Props {
   setPassword: (s: string) => void;
   roomId: string;
   currentPassword?: string;
+  allowInvites: boolean;
 }
 
 const RoomControls: React.SFC<Props> = ({
@@ -81,7 +82,8 @@ const RoomControls: React.SFC<Props> = ({
   hidePasswordModal,
   setPassword,
   roomId,
-  currentPassword
+  currentPassword,
+  allowInvites
 }) => {
   const leaveUrl = getConfigFromMetaTag('leave-button-url');
   let parsedLeaveUrl;
@@ -92,7 +94,7 @@ const RoomControls: React.SFC<Props> = ({
 
   return (
     <Container>
-      <InviteButton />
+      {allowInvites && <InviteButton />}
       <LockButton
         onClick={
           passwordRequired

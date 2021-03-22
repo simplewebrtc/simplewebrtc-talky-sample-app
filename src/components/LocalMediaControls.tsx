@@ -41,6 +41,7 @@ const MuteButton = styled(TalkyButton)<MutePauseButtonProps>`
         `
       : ''}
   }
+  margin-right: 5px;
 `;
 
 const PauseButton = styled(TalkyButton)(({ isOff }: MutePauseButtonProps) => ({
@@ -62,7 +63,7 @@ const Container = styled.div({
     }
   },
   [mq.SMALL_DESKTOP]: {
-    justifyContent: 'space-between'
+    // justifyContent: 'space-between'
   }
 });
 
@@ -76,6 +77,7 @@ interface LocalMediaControlsProps {
   isSpeakingWhileMuted: boolean;
   resumeVideo: () => void;
   pauseVideo: () => void;
+  allowShareScreen: boolean;
 }
 
 // LocalMediaControls displays buttons to toggle the mute/pause state of the
@@ -88,7 +90,8 @@ const LocalMediaControls: React.SFC<LocalMediaControlsProps> = ({
   isPaused,
   isSpeakingWhileMuted,
   resumeVideo,
-  pauseVideo
+  pauseVideo,
+  allowShareScreen,
 }) => (
   <Container>
     <RequestUserMedia
@@ -121,7 +124,7 @@ const LocalMediaControls: React.SFC<LocalMediaControlsProps> = ({
     <PauseButton isOff={isPaused} onClick={() => (isPaused ? resumeVideo() : pauseVideo())}>
       {isPaused ? <VideocamOffIcon /> : <VideocamIcon />}
     </PauseButton>
-    <ScreenshareControls />
+    {allowShareScreen && <ScreenshareControls />}
   </Container>
 );
 

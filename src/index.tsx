@@ -8,6 +8,7 @@ import App from './App';
 import { PlaceholderGenerator } from './types';
 import getConfigFromMetaTag from './utils/metaConfig';
 import randomRoomName from './utils/randomRoomName';
+import Homepage from './screens/Homepage';
 
 const configUrl = getConfigFromMetaTag('config-url');
 const CONFIG_URL = configUrl ? configUrl : '';
@@ -51,6 +52,13 @@ interface RunConfig {
   haircheckHeaderPlaceholder?: PlaceholderGenerator;
   emptyRosterPlaceholder?: PlaceholderGenerator;
   homepagePlaceholder?: PlaceholderGenerator;
+  openToPublic: boolean;
+  showHostVideo: boolean;
+  showVisitorVideo: boolean;
+  allowInvites: boolean;
+  allowShareScreen: boolean;
+  allowWalkieTalkieMode: boolean;
+  allowChat: boolean;
 }
 
 const run = ({
@@ -60,7 +68,14 @@ const run = ({
   gridPlaceholder,
   haircheckHeaderPlaceholder,
   emptyRosterPlaceholder,
-  homepagePlaceholder
+  homepagePlaceholder,
+  openToPublic = true,
+  showHostVideo = true,
+  showVisitorVideo = true,
+  allowInvites = true,
+  allowShareScreen = true,
+  allowWalkieTalkieMode = true,
+  allowChat = true,
 }: RunConfig) => {
   if (CONFIG_URL.endsWith('YOUR_API_KEY')) {
     ReactDOM.render(
@@ -100,10 +115,15 @@ const run = ({
         configUrl={CONFIG_URL}
         userData={USER_DATA}
         initialPassword={initialPassword}
-        gridPlaceholder={gridPlaceholder ? gridPlaceholder : null}
-        haircheckHeaderPlaceholder={haircheckHeaderPlaceholder ? haircheckHeaderPlaceholder : null}
-        emptyRosterPlaceholder={emptyRosterPlaceholder ? emptyRosterPlaceholder : null}
-        homepagePlaceholder={homepagePlaceholder ? homepagePlaceholder : null}
+        roomConfig={{
+          openToPublic,
+          showHostVideo,
+          showVisitorVideo,
+          allowInvites,
+          allowShareScreen,
+          allowWalkieTalkieMode,
+          allowChat,
+        }}
       />
     </Provider>,
     root

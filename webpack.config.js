@@ -13,7 +13,8 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.min.js',
     library: 'SimpleWebRTC',
-    libraryExport: 'default'
+    libraryExport: 'default',
+    filename: 'talky.js'
   },
   module: {
     rules: [

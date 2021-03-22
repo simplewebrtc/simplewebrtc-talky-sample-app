@@ -32,6 +32,9 @@ interface Props {
   passwordRequired?: boolean;
   roomId: string;
   currentPassword?: string;
+  allowInvites: boolean;
+  allowShareScreen: boolean;
+  allowWalkieTalkieMode: boolean;
 }
 
 interface State {
@@ -57,7 +60,10 @@ export default class Sidebar extends Component<Props, State> {
       togglePttMode,
       setPassword,
       roomId,
-      currentPassword
+      currentPassword,
+      allowInvites,
+      allowShareScreen,
+      allowWalkieTalkieMode,
     } = this.props;
 
     return (
@@ -70,12 +76,15 @@ export default class Sidebar extends Component<Props, State> {
           setPassword={setPassword}
           roomId={roomId}
           currentPassword={currentPassword}
+          allowInvites={allowInvites}
         />
         <SidebarUserControls
           activeSpeakerView={activeSpeakerView}
           toggleActiveSpeakerView={toggleActiveSpeakerView}
           pttMode={pttMode}
           togglePttMode={togglePttMode}
+          allowShareScreen={allowShareScreen}
+          allowWalkieTalkieMode={allowWalkieTalkieMode}
         />
         <Roster roomAddress={roomAddress} />
         <SidebarLinks roomId={roomId} />

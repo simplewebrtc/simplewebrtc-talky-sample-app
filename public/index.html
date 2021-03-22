@@ -11,7 +11,7 @@
     <!-- Change the YOUR_API_KEY section of the config URL to match your API key --> 
     <meta
       name="simplewebrtc-config-url"
-      content="https://api.simplewebrtc.com/config/guest/YOUR_API_KEY"
+      content="https://api.simplewebrtc.com/config/guest/491f6d482c8562d43e7be985"
     />
 
     <!--
@@ -234,13 +234,20 @@
     <script type="text/javascript">
       const params = new URLSearchParams(window.location.search);
       SimpleWebRTC.run({
+        // gridPlaceholder: () => SimpleWebRTC.loadTemplate('empty-peer-grid'),
+        // haircheckHeaderPlaceholder: () =>
+        //   SimpleWebRTC.loadTemplate('haircheck-header'),
+        // emptyRosterPlaceholder: () => SimpleWebRTC.loadTemplate('empty-roster'),
+        // homepagePlaceholder: () => SimpleWebRTC.loadTemplate('homepage')
         roomName: params.get('room'),
         root: document.getElementById('root'),
-        gridPlaceholder: () => SimpleWebRTC.loadTemplate('empty-peer-grid'),
-        haircheckHeaderPlaceholder: () =>
-          SimpleWebRTC.loadTemplate('haircheck-header'),
-        emptyRosterPlaceholder: () => SimpleWebRTC.loadTemplate('empty-roster'),
-        homepagePlaceholder: () => SimpleWebRTC.loadTemplate('homepage')
+        openToPublic: true,
+        showHostVideo: true,
+        showVisitorVideo: true,
+        allowInvites: false,
+        allowShareScreen: false,
+        allowWalkieTalkieMode: false,
+        allowChat: true,
       });
     </script>
   </body>
