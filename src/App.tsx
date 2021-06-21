@@ -7,10 +7,8 @@ import { PlaceholderGenerator } from './types';
 import { colorToString, darken } from './utils/colorify';
 
 const Container = styled.div`
-  /* height: calc(var(--vh, 1vh) * 100);
-  width: 100vw; */
-  height: 100%;
-  width: 100%;
+  height: calc(var(--vh, 1vh) * 100);
+  width: 100vw;
   background-color: ${({ theme }) => colorToString(theme.background)};
   color: ${({ theme }) => colorToString(theme.foreground)};
   a {
@@ -59,22 +57,15 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-interface RoomConfig {
-  openToPublic: boolean;
-  showHostVideo: boolean;
-  showVisitorVideo: boolean;
-  allowInvites: boolean;
-  allowShareScreen: boolean;
-  allowWalkieTalkieMode: boolean;
-  allowChat: boolean;
-}
-
 interface Props {
   configUrl: string;
   userData?: string;
   roomName?: string;
   initialPassword?: string;
-  roomConfig: RoomConfig;
+  gridPlaceholder: PlaceholderGenerator;
+  haircheckHeaderPlaceholder: PlaceholderGenerator;
+  emptyRosterPlaceholder: PlaceholderGenerator;
+  homepagePlaceholder: PlaceholderGenerator;
 }
 
 class App extends Component<Props> {
@@ -84,44 +75,46 @@ class App extends Component<Props> {
       configUrl,
       userData,
       initialPassword,
-      roomConfig,
+      gridPlaceholder,
+      haircheckHeaderPlaceholder,
+      emptyRosterPlaceholder,
+      homepagePlaceholder
     } = this.props;
     return (
       <ThemeProvider>
-        <div style={{ height: "100%" }}>
-          <GlobalStyle />
-          <Container>
-            {roomName ? (
-              <Room
-                name={roomName}
-                configUrl={configUrl}
-                userData={userData}
-                initialPassword={initialPassword}
-                roomConfig={roomConfig}
-              />
-            ) : (
-              <div className="container">
-                <form className="create-room-form" method="GET" action="/">
-                  <span className="create-room-form-input-wrapper">
-                    <span className="domain">localhost/</span>
-                    <input
-                      type="text"
-                      name="room"
-                      placeholder="choose a room name"
-                      className="create-room-form-input"
-                    />
-                  </span>
-                  <button
-                    className="create-room-form-button button button-default button-undefined"
-                    type="submit"
-                  >
-                    Start a chat
-                  </button>
-                </form>
-              </div>
-            )}
-          </Container>
-        </div>
+        <Placeholders.Provider
+          value={{
+            gridPlaceholder,
+            haircheckHeaderPlaceholder,
+            emptyRosterPlaceholder,
+            homepagePlaceholder
+          }}
+        >
+          <div>
+            <GlobalStyle />
+            <Container>
+              {roomName ? (
+                <Room
+                  name={roomName}
+                  configUrl={configUrl}
+                  userData={userData}
+                  initialPassword={initialPassword}
+                />
+              ) : (
+                <div
+                  ref={node => {
+                    if (node && homepagePlaceholder && node.childElementCount === 0) {
+                      const el = homepagePlaceholder();
+                      if (el) {
+                        node.appendChild(el);
+                      }
+                    }
+                  }}
+                />
+              )}
+            </Container>
+          </div>
+        </Placeholders.Provider>
       </ThemeProvider>
     );
   }

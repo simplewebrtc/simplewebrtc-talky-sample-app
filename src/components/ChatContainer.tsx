@@ -21,13 +21,12 @@ import Linkify from './Linkify';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: calc(var(--vh, 1vh) * 50);
   max-height: calc(var(--vh, 1vh) * 100);
   border-top: ${({ theme }) => css`1px solid ${colorToString(theme.border)}`};
   z-index: 300;
   background-color: ${({ theme }) => colorToString(theme.background)};
   overflow: hidden;
-  margin-left: auto;
 
   & .msg:last-of-type {
     border-bottom: none;

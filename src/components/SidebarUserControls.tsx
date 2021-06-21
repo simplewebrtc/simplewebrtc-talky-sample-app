@@ -59,8 +59,6 @@ interface Props {
   toggleActiveSpeakerView: () => void;
   pttMode: boolean;
   togglePttMode: (e: React.SyntheticEvent<Element>) => void;
-  allowShareScreen: boolean;
-  allowWalkieTalkieMode: boolean;
 }
 
 interface LocalScreenProps {
@@ -110,9 +108,7 @@ const SidebarUserControls: React.SFC<Props> = ({
   activeSpeakerView,
   toggleActiveSpeakerView,
   pttMode,
-  togglePttMode,
-  allowShareScreen,
-  allowWalkieTalkieMode,
+  togglePttMode
 }) => (
   <UserControls
     render={({
@@ -163,8 +159,6 @@ const SidebarUserControls: React.SFC<Props> = ({
           pauseVideo={() => pauseVideo({ screenCapture: false })}
           isSpeaking={isSpeaking}
           isSpeakingWhileMuted={isSpeakingWhileMuted}
-          allowShareScreen={allowShareScreen}
-          
         />
         <RoomModeToggles>
           {/*
@@ -182,13 +176,13 @@ const SidebarUserControls: React.SFC<Props> = ({
                 </ToggleContainer>
               </div>
             */}
-          {allowWalkieTalkieMode && <div>
+          <div>
             <ToggleContainer>
               <input type="checkbox" checked={pttMode} onChange={togglePttMode} />
               Walkie Talkie Mode
               <Tooltip text="Use spacebar to toggle your microphone on/off" />
             </ToggleContainer>
-          </div>}
+          </div>
         </RoomModeToggles>
       </div>
     )}
