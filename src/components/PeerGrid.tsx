@@ -44,6 +44,7 @@ const PeerGrid: React.SFC<Props> = ({ roomAddress, activeSpeakerView, setPasswor
   const { hiddenPeers } = useContext(HiddenPeers);
   return (
     <PeerList
+      filter={(peer) => { return !peer.customerData.isAHiddenBot }}
       speaking={activeSpeakerView ? activeSpeakerView : undefined}
       room={roomAddress}
       render={({ peers }) => {
