@@ -18,7 +18,6 @@ import PasswordEntry from '../components/PasswordEntry';
 import PeerGrid from '../components/PeerGrid';
 import Sidebar from '../components/Sidebar';
 import SoundPlayer from '../components/SoundPlayer';
-import { RecordingIndicator, RecordingControls, RecordingContainer } from '../components/RecordingControls';
 import HiddenPeers from '../contexts/HiddenPeers';
 import mq from '../styles/media-queries';
 
@@ -90,6 +89,7 @@ class Index extends Component<Props, State> {
   public render() {
     return (
       <Provider configUrl={this.props.configUrl} userData={this.props.userData}>
+        <h1>Recording</h1>
         <RemoteAudioPlayer />
         <HiddenPeers.Provider
           value={{
@@ -111,15 +111,6 @@ class Index extends Component<Props, State> {
                   return (
                     <Container>
                       <SoundPlayer roomAddress={room.address!} />
-
-                      <RecordingContainer>
-                      {room.selfRole === 'moderator' ? (<>
-                        <RecordingControls roomAddress={room.address!} />
-                      </>) : (
-                        <RecordingIndicator roomAddress={room.address!} />
-                      )}
-                      </RecordingContainer>
-
                       <Sidebar
                         roomAddress={room.address!}
                         activeSpeakerView={this.state.activeSpeakerView}

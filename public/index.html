@@ -235,6 +235,7 @@
       const params = new URLSearchParams(window.location.search);
       SimpleWebRTC.run({
         roomName: params.get('room'),
+        recordingClient: true,
         root: document.getElementById('root'),
         gridPlaceholder: () => SimpleWebRTC.loadTemplate('empty-peer-grid'),
         haircheckHeaderPlaceholder: () =>

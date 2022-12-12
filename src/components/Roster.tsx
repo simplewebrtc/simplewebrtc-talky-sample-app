@@ -9,6 +9,8 @@ import HiddenPeers from '../contexts/HiddenPeers';
 import Placeholders from '../contexts/Placeholders';
 import { TalkyButton } from '../styles/button';
 
+const SHOW_HIDDEN_BOTS = true;
+
 const Button = styled(TalkyButton)({
   marginRight: '5px'
 });
@@ -27,6 +29,12 @@ interface PeerListItemProps {
 const PeerListItem: React.SFC<PeerListItemProps> = ({ peer }) => {
   const { hiddenPeers, togglePeer } = useContext(HiddenPeers);
   const isHidden = hiddenPeers.includes(peer.id);
+  const isAHiddenBot = peer?.customerData.isAHiddenBot;
+  
+  if (!SHOW_HIDDEN_BOTS && isAHiddenBot) {
+    return null;
+  }
+
   return (
     <li>
       <PeerControls
@@ -40,7 +48,7 @@ const PeerListItem: React.SFC<PeerListItemProps> = ({ peer }) => {
       <Button onClick={() => togglePeer(peer.id)}>
         {isHidden ? <VisibilityOffIcon fill="#505658" /> : <VisibilityIcon fill="#505658" />}
       </Button>
-      {peer.displayName || 'Anonymous'}
+      {isAHiddenBot ? (peer?.customerData.id || 'Bot') : (peer.displayName || 'Anonymous')}
     </li>
   );
 };

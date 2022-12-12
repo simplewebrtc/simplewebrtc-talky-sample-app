@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import ThemeProvider from './components/ThemeProvider';
 import Placeholders from './contexts/Placeholders';
+import RecordingRoom from './routes/RecordingRoom';
 import Room from './routes/Room';
 import { PlaceholderGenerator } from './types';
 import { colorToString, darken } from './utils/colorify';
@@ -61,6 +62,7 @@ interface Props {
   configUrl: string;
   userData?: string;
   roomName?: string;
+  recordingClient?: string;
   initialPassword?: string;
   gridPlaceholder: PlaceholderGenerator;
   haircheckHeaderPlaceholder: PlaceholderGenerator;
@@ -74,6 +76,7 @@ class App extends Component<Props> {
       roomName,
       configUrl,
       userData,
+      recordingClient,
       initialPassword,
       gridPlaceholder,
       haircheckHeaderPlaceholder,
@@ -94,12 +97,20 @@ class App extends Component<Props> {
             <GlobalStyle />
             <Container>
               {roomName ? (
-                <Room
-                  name={roomName}
-                  configUrl={configUrl}
-                  userData={userData}
-                  initialPassword={initialPassword}
-                />
+                recordingClient ? (
+                  <RecordingRoom
+                    name={roomName}
+                    configUrl={configUrl}
+                    userData={userData}
+                  />
+                ) : (
+                  <Room
+                    name={roomName}
+                    configUrl={configUrl}
+                    userData={userData}
+                    initialPassword={initialPassword}
+                  />
+                )
               ) : (
                 <div
                   ref={node => {
